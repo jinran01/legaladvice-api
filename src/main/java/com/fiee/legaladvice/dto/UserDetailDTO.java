@@ -1,5 +1,6 @@
 package com.fiee.legaladvice.dto;
 
+import io.swagger.models.auth.In;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,6 +50,15 @@ public class UserDetailDTO implements UserDetails {
      */
     private String username;
 
+    /**
+     * 手机号
+     */
+    private String phone;
+
+    /**
+     * 性别
+     */
+    private Integer sex;
     /**
      * 密码
      */

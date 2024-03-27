@@ -12,8 +12,10 @@ import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -47,7 +49,6 @@ public class UserAuthController {
     @GetMapping("/users")
     public Result<PageResult<UserBackDTO>> getUserList(ConditionVO condition) {
         PageResult<UserBackDTO> pageResult = userAuthService.getUserList(condition);
-        System.out.println(pageResult);
         return Result.ok(pageResult);
     }
     @OptLog(optType = UPDATE)
@@ -89,29 +90,45 @@ public class UserAuthController {
 //        return Result.ok(ossToken);
 //    }
     @OptLog(optType = UPDATE)
-    @ApiOperation("修改用户")
+    @ApiOperation("更新后台用户头像")
     @PostMapping("/users/avatar")
     public Result updateUserAvatar(@RequestBody UserInfo userInfo){
-        //TODO
-        //未实现修改头像功能
-        return Result.ok();
-//        return Result.ok(userInfoService.updateUserAvatar(userInfo));
+        return Result.ok(userInfoService.updateById(userInfo));
     }
 
     @OptLog(optType = UPDATE)
-    @ApiOperation("修改用户信息")
-    @PostMapping("/users/info")
-    public Result updateUserInfo(@RequestBody Map map){
-        boolean flag = userAuthService.updateUserInfo(map);
+    @ApiOperation("修改用户密码")
+    @PostMapping("/users/pass")
+    public Result updateUserPass(@RequestBody Map map){
+        boolean flag = userAuthService.updateUserPass(map);
         if (flag){
-            return Result.ok(userAuthService.updateUserInfo(map));
+            return Result.ok(userAuthService.updateUserPass(map));
         }else {
             return Result.fail("旧密码不正确");
         }
     }
+    @OptLog(optType = UPDATE)
+    @ApiOperation("更新后台用户信息")
+    @PostMapping("/users/info")
+    public Result updateUserInfo(@RequestBody UserInfo userInfo){
+        return Result.ok(userAuthService.updateUserInfo(userInfo));
+    }
+
+
+    /**
+     * 获取当前用户信息
+     * @param authentication
+     * @return
+     */
+    @ApiOperation("获取当前用户信息")
+    @GetMapping("/users/info")
+    public Result getUserInfo(Authentication authentication){
+        return Result.ok(authentication.getPrincipal());
+    }
     @AccessLimit(count = 3)
     @PostMapping("/users/send")
     public Result sendMailCode(@RequestBody String username){
+
         userAuthService.sendCode(username);
         return Result.ok("发送成功");
     }

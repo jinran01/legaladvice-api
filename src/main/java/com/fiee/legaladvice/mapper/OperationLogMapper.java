@@ -2,7 +2,11 @@ package com.fiee.legaladvice.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fiee.legaladvice.entity.OperationLog;
+import com.fiee.legaladvice.vo.ConditionVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author Fiee
@@ -12,7 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
 */
 @Mapper
 public interface OperationLogMapper extends BaseMapper<OperationLog> {
-
+    List<OperationLog> getOperations(@Param("current") Long current, @Param("size") Long size, @Param("vo") ConditionVO conditionVo);
 }
 
 

@@ -210,6 +210,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         }
 //        throw new BizException("出错了");
         roleResourceService.saveBatch(list);
+
         return true;
     }
 }

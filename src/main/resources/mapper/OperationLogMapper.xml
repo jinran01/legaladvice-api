@@ -4,4 +4,15 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fiee.legaladvice.mapper.OperationLogMapper">
 
+    <select id="getOperations" resultType="com.fiee.legaladvice.entity.OperationLog">
+        select * from tb_operation_log
+        <where>
+            <if test="vo.keywords != null">
+                and opt_module like concat('%',#{vo.keywords},'%')
+                or opt_desc like concat('%',#{vo.keywords},'%')
+            </if>
+        </where>
+        ORDER BY create_time desc
+        LIMIT #{current},#{size}
+    </select>
 </mapper>

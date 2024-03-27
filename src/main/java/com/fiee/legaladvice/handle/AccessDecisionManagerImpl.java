@@ -25,6 +25,10 @@ public class AccessDecisionManagerImpl implements AccessDecisionManager {
                        Object object,
                        Collection<ConfigAttribute> configAttributes)
             throws AccessDeniedException, InsufficientAuthenticationException {
+
+        //TODO 问题：如果只判断标签的话会出现BUG 例如有相同的标签的话会被放行
+        //TODO 优化：应该判断角色ID 或者不能添加相同的标签
+
         // 获取用户权限列表
         List<String> permissionList = authentication.getAuthorities()
                 .stream()

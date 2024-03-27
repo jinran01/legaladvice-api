@@ -46,8 +46,8 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
         httpServletResponse.setContentType(APPLICATION_JSON);
         Map<String,Object> map = new HashMap<>();
         map.put("userInfo",userLoginDTO);
-        String token = JwtUtil.createJWT(UserUtils.getLoginUser().getId().toString());
-        map.put("token",token);
+//        String token = JwtUtil.createJWT(UserUtils.getLoginUser().getId().toString());
+//        map.put("token",token);
         httpServletResponse.getWriter().write(JSON.toJSONString(Result.ok(map)));
         // 更新用户ip，最近登录时间
         updateUserInfo();

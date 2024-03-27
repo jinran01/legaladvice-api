@@ -33,9 +33,11 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     @Override
     public List<Menu> getMenuList(String menuName) {
         boolean flag = !StringUtils.isBlank(menuName);
+        //传参 menuName
         if (flag){
             LambdaQueryWrapper<Menu> wrapper = new LambdaQueryWrapper<>();
             wrapper.like(true,Menu::getName,menuName);
+            wrapper.eq(Menu::getIsHidden,0);
             List<Menu> list = this.list(wrapper);
             List<Menu> menuList = MenuHelper.buildTree(list);
             return menuList;
@@ -47,6 +49,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
                 LambdaQueryWrapper<Menu> wrapper = new LambdaQueryWrapper<>();
                 wrapper.orderByAsc(Menu::getOrderNum);
                 wrapper.orderByAsc(Menu::getParentId);
+                wrapper.eq(Menu::getIsHidden,0);
                 List<Menu> list = baseMapper.selectList(wrapper);
                 List menuList = MenuHelper.buildTree(list);
                 redisService.set("menuList",menuList);

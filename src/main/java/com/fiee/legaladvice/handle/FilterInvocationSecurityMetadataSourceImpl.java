@@ -39,9 +39,9 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         // 修改接口角色关系后重新加载
-        if (CollectionUtils.isEmpty(resourceRoleList)) {
-            this.loadDataSource();
-        }
+//        if (CollectionUtils.isEmpty(resourceRoleList)) {
+//        this.loadDataSource();
+//        }
         FilterInvocation fi = (FilterInvocation) object;
         // 获取用户请求方式
         String method = fi.getRequest().getMethod();

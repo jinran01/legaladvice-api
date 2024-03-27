@@ -2,6 +2,10 @@ package com.fiee.legaladvice.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.fiee.legaladvice.entity.OperationLog;
+import com.fiee.legaladvice.vo.ConditionVO;
+import com.fiee.legaladvice.vo.PageResult;
+
+import java.util.List;
 
 /**
 * @author Fiee
@@ -10,4 +14,7 @@ import com.fiee.legaladvice.entity.OperationLog;
 */
 public interface OperationLogService extends IService<OperationLog> {
 
+    PageResult<OperationLog> getOperations(ConditionVO conditionVO);
+
+    boolean delOperations(List<Integer> ids);
 }

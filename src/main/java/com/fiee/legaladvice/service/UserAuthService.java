@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.fiee.legaladvice.dto.UserBackDTO;
 import com.fiee.legaladvice.dto.UserOnlineDTO;
 import com.fiee.legaladvice.entity.UserAuth;
+import com.fiee.legaladvice.entity.UserInfo;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
 
@@ -54,11 +55,18 @@ public interface UserAuthService extends IService<UserAuth> {
      * @param map
      * @return
      */
-    boolean updateUserInfo(Map map);
+    boolean updateUserPass(Map map);
 
     /**
      * 发送邮箱验证码
      * @param username
      */
     void sendCode(String username);
+
+    /**
+     * 更新后台用户信息
+     * @param userInfo
+     * @return
+     */
+    boolean updateUserInfo(UserInfo userInfo);
 }

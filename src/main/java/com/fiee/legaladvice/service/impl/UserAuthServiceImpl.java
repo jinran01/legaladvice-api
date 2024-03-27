@@ -24,12 +24,15 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -64,6 +67,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private RedisService redisService;
+    @Resource
+    private HttpServletRequest request;
     @Override
     public PageResult<UserBackDTO> getUserList(ConditionVO condition) {
         //获取用户数量
@@ -71,9 +76,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         if (count == 0){
             return new PageResult<>();
         }
-//        List<UserBackDTO> listUsers = userAuthDao.listUsers(PageUtils.getLimitCurrent(), condition.getSize(), condition);
         List<UserBackDTO> listUsers = userAuthMapper.listUsers((condition.getCurrent()  - 1) *condition.getSize(), condition.getSize(), condition);
-
         return new PageResult<>(listUsers,count);
     }
 
@@ -143,14 +146,21 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         allSessions.forEach(SessionInformation::expireNow);
     }
 
+
+    /**
+     * 修改用户角色或者昵称
+     * @param map
+     * @return
+     */
+
     @Override
     @Transactional
     public boolean updateUserRole(Map map) {
         //删除原有的信息
         LambdaQueryWrapper<UserRole> wrapper = new LambdaQueryWrapper<>();
         //获取userId
-        Integer userId = (Integer) map.get("userId");
-        wrapper.eq(UserRole::getUserId,userId);
+        Integer userInfoId = (Integer) map.get("userInfoId");
+        wrapper.eq(UserRole::getUserId,userInfoId);
         userRoleService.remove(wrapper);
 
         //修改角色
@@ -159,14 +169,13 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         List<UserRole> list = new ArrayList<>();
         for (int id : roleIds) {
             UserRole userRole= new UserRole();
-            userRole.setUserId(userId);
+            userRole.setUserId(userInfoId);
             userRole.setRoleId(id);
             list.add(userRole);
         }
         userRoleService.saveBatch(list);
 
         //修改用户信息
-        Integer userInfoId = (Integer) map.get("userInfoId");
         UserInfo userInfo = userInfoService.getById(userInfoId);
         userInfo.setNickname((String) map.get("nickname"));
         userInfo.setUpdateTime(LocalDateTime.now(ZoneId.of("Asia/Shanghai")));
@@ -175,7 +184,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     }
 
     @Override
-    public boolean updateUserInfo(Map map) {
+    public boolean updateUserPass(Map map) {
         Integer userId = (Integer) map.get("id");
         //获取用户信息
         UserAuth userAuth = this.getById(userId);
@@ -211,6 +220,12 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         redisService.set(USER_CODE_KEY + username , code , CODE_EXPIRE_TIME);
         //mq交换机
         rabbitTemplate.convertAndSend(EMAIL_EXCHANGE,"*", new Message(JSON.toJSONBytes(emailDTO),new MessageProperties()));
+    }
+
+    @Override
+    public boolean updateUserInfo(UserInfo userInfo) {
+//        SecurityContextHolder.getContext().setAuthentication();
+        return userInfoService.updateById(userInfo);
     }
 }
 
