@@ -50,7 +50,7 @@ p6spy:
 upload:
   aliyun:
     endpoint:
-    accessKeySecret: G
+    accessKeySecret:
     accessKeyId:
     bucketName:
 
