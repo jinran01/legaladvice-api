@@ -4,4 +4,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fiee.legaladvice.mapper.CategoryMapper">
 
+    <select id="getCategoryList" resultType="com.fiee.legaladvice.entity.Category">
+        select
+        *
+        from
+        tb_category
+        <where>
+            <if test="vo.keywords != null">
+                and category_name like concat("%",#{vo.keywords},"%")
+            </if>
+        </where>
+        limit #{current},#{size}
+    </select>
 </mapper>

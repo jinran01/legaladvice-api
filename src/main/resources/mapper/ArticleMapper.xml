@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fiee.legaladvice.mapper.ArticleMapper">
+
+    <resultMap id="ArticleHomeMap" type="com.fiee.legaladvice.dto.ArticleHomeDTO">
+        <id column="id" property="id"/>
+        <result column="article_cover" property="articleCover"/>
+        <result column="article_title" property="articleTitle"/>
+        <result column="article_content" property="articleContent"/>
+        <result column="create_time" property="createTime"/>
+        <result column="type" property="type"/>
+        <result column="is_top" property="isTop"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <collection property="tagDTOList" ofType="com.fiee.legaladvice.dto.TagDTO">
+            <id column="tag_id" property="id"/>
+            <result column="tag_name" property="tagName"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="ArticleBackMap" type="com.fiee.legaladvice.dto.ArticleBackDTO">
+        <id column="id" property="id"/>
+        <result column="article_cover" property="articleCover"/>
+        <result column="article_title" property="articleTitle"/>
+        <result column="create_time" property="createTime"/>
+        <result column="type" property="type"/>
+        <result column="is_top" property="isTop"/>
+        <result column="is_delete" property="isDelete"/>
+        <result column="status" property="status"/>
+        <result column="category_name" property="categoryName"/>
+        <collection property="tagDTOList" ofType="com.fiee.legaladvice.dto.TagDTO">
+            <id column="tag_id" property="id"/>
+            <result column="tag_name" property="tagName"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="ArticleBackByIdMap" type="com.fiee.legaladvice.dto.ArticleDTO">
+        <id column="id" property="id"/>
+        <result column="article_cover" property="articleCover"/>
+        <result column="article_title" property="articleTitle"/>
+        <result column="article_content" property="articleContent"/>
+        <result column="original_url" property="originalUrl" />
+        <result column="type" property="type"/>
+        <result column="category_name" property="categoryName"/>
+        <collection property="tagDTOList" ofType="com.fiee.legaladvice.dto.TagDTO">
+            <id column="tag_id" property="id"/>
+            <result column="tag_name" property="tagName"/>
+        </collection>
+    </resultMap>
+
+    <select id="homeArticleList" resultMap="ArticleHomeMap">
+        SELECT a.id,
+               article_cover,
+               article_title,
+               SUBSTR(article_content, 1, 500) AS article_content,
+               a.create_time,
+               a.type,
+               a.is_top,
+               a.category_id,
+               category_name,
+               t.id                            AS tag_id,
+               t.tag_name
+        FROM (SELECT id,
+                     article_cover,
+                     article_title,
+                     article_content,
+                     type,
+                     is_top,
+                     create_time,
+                     category_id
+              FROM tb_article
+              WHERE is_delete = 0
+                AND status = 1
+              ORDER BY is_top DESC,
+                       id DESC) a
+                 JOIN tb_category c ON a.category_id = c.id
+                 JOIN tb_article_tag atg ON a.id = atg.article_id
+                 JOIN tb_tag t ON atg.tag_id = t.id
+        ORDER BY is_top DESC,
+                 id DESC
+    </select>
+
+    <select id="backArticleList" resultMap="ArticleBackMap">
+        SELECT
+        a.id,
+        article_cover,
+        article_title,
+        type,
+        is_top,
+        a.is_delete,
+        a.status,
+        a.create_time,
+        category_name,
+        t.id AS tag_id,
+        t.tag_name
+        FROM
+        (
+        SELECT
+        id,
+        article_cover,
+        article_title,
+        type,
+        is_top,
+        is_delete,
+        status,
+        create_time,
+        category_id
+        FROM
+        tb_article
+        <where>
+            <if test="vo.isDelete != null">
+                is_delete = #{vo.isDelete}
+            </if>
+            <if test="vo.keywords != null">
+                and article_title like concat('%',#{vo.keywords},'%')
+            </if>
+            <if test="vo.status != null">
+                and status = #{vo.status}
+            </if>
+            <if test="vo.categoryId != null">
+                and category_id = #{vo.categoryId}
+            </if>
+            <if test="vo.type != null">
+                and type = #{vo.type}
+            </if>
+            <if test="vo.tagId != null">
+                and id in
+                (
+                SELECT
+                article_id
+                FROM
+                tb_article_tag
+                WHERE
+                tag_id = #{vo.tagId}
+                )
+            </if>
+        </where>
+        ORDER BY
+        is_top DESC,
+        id DESC
+        LIMIT #{current},#{size}
+        ) a
+        LEFT JOIN tb_category c ON a.category_id = c.id
+        LEFT JOIN tb_article_tag atg ON a.id = atg.article_id
+        LEFT JOIN tb_tag t ON t.id = atg.tag_id
+        ORDER BY
+        is_top DESC,
+        a.id DESC
+    </select>
+
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT
+        count(DISTINCT a.id)
+        from
+        tb_article a
+        LEFT JOIN tb_article_tag tat on  a.id = tat.article_id
+        <where>
+            <if test="vo.isDelete != null">
+                is_delete = #{vo.isDelete}
+            </if>
+            <if test="vo.keywords != null">
+                and article_title like concat('%',#{vo.keywords},'%')
+            </if>
+            <if test="vo.status != null">
+                and status = #{vo.status}
+            </if>
+            <if test="vo.categoryId != null">
+                and category_id = #{vo.categoryId}
+            </if>
+            <if test="vo.type != null">
+                and type = #{vo.type}
+            </if>
+            <if test="vo.tagId != null">
+                and tat.tag_id = #{vo.tagId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getArticleById" resultMap="ArticleBackByIdMap">
+        SELECT
+            a.id,
+            article_cover,
+            article_title,
+            article_content,
+            a.type,
+            a.original_url,
+            a.create_time,
+            a.update_time,
+            a.category_id,
+            category_name,
+            t.id AS tag_id,
+            t.tag_name
+        FROM
+            tb_article a
+                JOIN tb_category c ON a.category_id = c.id
+                JOIN tb_article_tag atg ON a.id = atg.article_id
+                JOIN tb_tag t ON t.id = atg.tag_id
+        WHERE
+            a.id = #{id}
+    </select>
+
+</mapper>

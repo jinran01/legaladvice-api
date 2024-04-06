@@ -3,6 +3,11 @@ package com.fiee.legaladvice.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.fiee.legaladvice.entity.Category;
+import com.fiee.legaladvice.vo.CategoryVO;
+import com.fiee.legaladvice.vo.ConditionVO;
+import com.fiee.legaladvice.vo.PageResult;
+
+import java.util.List;
 
 /**
 * @author Fiee
@@ -10,5 +15,7 @@ import com.fiee.legaladvice.entity.Category;
 * @createDate 2024-03-03 23:51:04
 */
 public interface CategoryService extends IService<Category> {
+    PageResult<CategoryVO> getCategoryList(ConditionVO vo);
 
+    boolean removeBatch(List<Category> categories);
 }

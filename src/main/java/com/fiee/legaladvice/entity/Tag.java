@@ -10,26 +10,27 @@ import java.time.LocalDateTime;
 
 /**
  * 
- * @TableName tb_category
+ * @TableName tb_tag
  */
-@Data
+@TableName("tb_tag")
 @Builder
-@TableName("tb_category")
-public class Category implements Serializable {
+@Data
+public class Tag implements Serializable {
     /**
-     * 
+     * id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 分类名
+     * 标签名
      */
-    private String categoryName;
+    private String tagName;
 
     /**
      * 创建时间
-     */@TableField(fill = FieldFill.INSERT)
+     */
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
