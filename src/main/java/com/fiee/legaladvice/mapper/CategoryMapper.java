@@ -17,7 +17,7 @@ import java.util.List;
 */
 @Mapper
 public interface CategoryMapper extends BaseMapper<Category> {
-    List<Category> getCategoryList(@Param("vo") ConditionVO vo, Long current, Long size);
+    List<Category> getCategoryList(@Param("vo") ConditionVO vo, @Param("current") Long current, @Param("size") Long size);
 
 }
 

@@ -20,7 +20,7 @@ import java.util.List;
 public interface TagMapper extends BaseMapper<Tag> {
     List<String> listTagNameByArticleId(Integer articleId);
 
-    List<Tag> getTagList(@Param("vo") ConditionVO vo, Long current, Long size);
+    List<Tag> getTagList(@Param("vo") ConditionVO vo, @Param("current") Long current, @Param("size") Long size);
 }
 
 

@@ -40,10 +40,8 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
         LambdaQueryWrapper<Tag> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(vo.getKeywords()!=null,Tag::getTagName,vo.getKeywords());
         Integer count = Math.toIntExact(this.count(wrapper));
-
         List<Tag> tagList = baseMapper.getTagList(vo, (vo.getCurrent() - 1) * vo.getSize(), vo.getSize());
         List<TagVO> tagVOList = BeanCopyUtils.copyList(tagList, TagVO.class);
-
         List<TagVO> collect = tagVOList.stream().map(item -> {
             LambdaQueryWrapper<ArticleTag> articleWrapper = new LambdaQueryWrapper<>();
             articleWrapper.eq(ArticleTag::getTagId,item.getId());

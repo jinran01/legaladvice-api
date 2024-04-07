@@ -37,6 +37,7 @@ public class CategoryController {
     @ApiOperation("查看后台分类列表")
     @GetMapping("/categories")
     public Result categoryList(ConditionVO vo){
+        System.out.println(vo);
         return Result.ok(categoryService.getCategoryList(vo));
     }
 
