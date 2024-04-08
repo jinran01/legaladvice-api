@@ -2,6 +2,7 @@ package com.fiee.legaladvice.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.fiee.legaladvice.dto.CategoryDTO;
 import com.fiee.legaladvice.entity.Category;
 import com.fiee.legaladvice.vo.ConditionVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -17,6 +18,8 @@ import java.util.List;
 */
 @Mapper
 public interface CategoryMapper extends BaseMapper<Category> {
+
+    List<CategoryDTO> listCategoryDTO();
     List<Category> getCategoryList(@Param("vo") ConditionVO vo, @Param("current") Long current, @Param("size") Long size);
 
 }

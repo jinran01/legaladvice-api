@@ -2,6 +2,7 @@ package com.fiee.legaladvice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fiee.legaladvice.dto.CategoryDTO;
 import com.fiee.legaladvice.entity.Article;
 import com.fiee.legaladvice.entity.Category;
 import com.fiee.legaladvice.exception.BizException;
@@ -31,6 +32,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
 
     @Autowired
     private ArticleMapper articleMapper;
+
 
     @Override
     public PageResult<CategoryVO> getCategoryList(ConditionVO vo) {
@@ -62,6 +64,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         }
         return true;
     }
+
 }
 
 

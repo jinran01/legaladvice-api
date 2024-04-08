@@ -4,6 +4,17 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fiee.legaladvice.mapper.CategoryMapper">
 
+    <select id="listCategoryDTO" resultType="com.fiee.legaladvice.dto.CategoryDTO">
+        SELECT
+            c.id,
+            c.category_name,
+            COUNT( a.id ) AS article_count
+        FROM
+            tb_category c
+                LEFT JOIN ( SELECT id, category_id FROM tb_article WHERE is_delete = 0 AND `status` = 1 ) a ON c.id = a.category_id
+        GROUP BY
+            c.id
+    </select>
     <select id="getCategoryList" resultType="com.fiee.legaladvice.entity.Category">
         select
         *
