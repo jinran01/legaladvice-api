@@ -22,7 +22,7 @@ import java.util.List;
 public interface ArticleMapper extends BaseMapper<Article> {
     List<ArticleHomeDTO> homeArticleList();
 
-    List<ArticleBackDTO> backArticleList(@Param("vo") ConditionVO vo,Long current,Long size);
+    List<ArticleBackDTO> backArticleList(@Param("vo") ConditionVO vo,@Param("current") Long current,@Param("size") Long size);
 
     Integer getCount(@Param("vo") ConditionVO vo);
 

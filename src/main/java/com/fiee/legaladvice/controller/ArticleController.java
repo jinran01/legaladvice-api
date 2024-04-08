@@ -8,6 +8,7 @@ import com.fiee.legaladvice.vo.ArticleVO;
 import com.fiee.legaladvice.vo.ConditionVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;

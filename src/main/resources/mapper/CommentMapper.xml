@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fiee.legaladvice.mapper.CommentMapper">
+
+    <select id="getCommentList" resultType="com.fiee.legaladvice.dto.CommentBackDTO">
+        select
+        c.id,
+        ui1.nickname,
+        ui1.avatar,
+        ui1.id,
+        ui2.nickname as reply_nickname,
+        reply_user_id,
+        topic_id,
+        c.type,
+        is_review,
+        comment_content,
+        a.article_title,
+        c.create_time
+        from
+        tb_comment c
+        left join tb_article a on c.topic_id = a.id
+        left join tb_user_info ui1 on c.user_id = ui1.id
+        left join tb_user_info ui2 on c.reply_user_id = ui2.id
+        <where>
+            <if test="vo.type != null">
+                c.type = #{vo.type}
+            </if>
+            <if test="vo.isReview != null">
+                and c.is_review = #{vo.isReview}
+            </if>
+            <if test="vo.keywords != null">
+                and ui1.nickname like concat('%',#{vo.keywords},'%')
+            </if>
+        </where>
+        ORDER BY
+        c.id DESC
+        LIMIT #{current},#{size}
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        select
+        count(1)
+        from
+        tb_comment c
+        left join tb_user_info u on c.user_id = u.id
+        <where>
+            <if test="vo.type != null">
+                c.type = #{vo.type}
+            </if>
+            <if test="vo.isReview != null">
+                and c.is_review = #{vo.isReview}
+            </if>
+            <if test="vo.keywords != null">
+                and u.nickname like concat('%',#{vo.keywords},'%')
+            </if>
+        </where>
+    </select>
+</mapper>
