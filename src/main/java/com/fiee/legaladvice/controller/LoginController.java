@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author: Fiee
@@ -31,7 +32,7 @@ public class LoginController {
     @GetMapping("/getLoginCode/{uuid}")
     public void getLoginCode(HttpServletResponse response,@PathVariable String uuid) throws IOException {
         String code = MakeCodeUtils.makeCode(response, uuid);
-        redisService.set(uuid,code);
+        redisService.set(uuid,code,30);
     }
 
     @ApiOperation("检验登录验证码")
@@ -40,10 +41,10 @@ public class LoginController {
         String uuid = codeInfo.get("uuid");
         String userCode = codeInfo.get("code");
         String code = redisService.get(uuid).toString();
-        if (MakeCodeUtils.checkCode(code,userCode)){
+        if (MakeCodeUtils.checkCode(code,userCode) && Objects.nonNull(code)){
             return Result.ok();
         }else {
-            return Result.fail();
+            return Result.fail("验证码错误或者过期！");
         }
     }
 //    @GetMapping("/session/invalid")

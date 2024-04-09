@@ -31,6 +31,6 @@ public  class MakeCodeUtils {
 
     //检验验证码是否正确
     public static boolean checkCode(String code,String userCode){
-        return code.toLowerCase().equals(userCode.toLowerCase());
+        return code.equalsIgnoreCase(userCode);
     }
 }

@@ -39,7 +39,15 @@ public class UserInfoDTO {
      * 登录方式
      */
     private Integer loginType;
+    /**
+     * 手机号
+     */
+    private String phone;
 
+    /**
+     * 性别
+     */
+    private Integer sex;
     /**
      * 用户名
      */
