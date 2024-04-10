@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Author: Fiee
@@ -50,7 +51,7 @@ public class CategoryController {
     @ApiOperation("删除分类")
     @DeleteMapping("/categories")
     public Result searchCategory(@RequestBody Long[] categories){
-        return Result.ok(categoryService.removeBatchByIds(Arrays.asList(categories)));
+        return Result.ok(categoryService.removeBatch(categories));
     }
 
 }

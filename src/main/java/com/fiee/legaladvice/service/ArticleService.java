@@ -22,7 +22,7 @@ public interface ArticleService extends IService<Article> {
 
     boolean saveOrUpdateArticle(ArticleVO articleVO);
     ArticleVO getArticleBackById(Integer articleId);
-    ArticleDTO getArticleById(Integer id);
+    ArticleDTO getArticleById(Integer articleId);
 
     PageResult<ArticleBackDTO> getBackArticle(ConditionVO vo);
 

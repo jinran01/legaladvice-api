@@ -75,12 +75,4 @@ public class ArticleController {
         return Result.ok(articleService.getArticleBackById(id));
     }
 
-//    @ApiOperation("上传文章封面OssToken")
-//    @GetMapping("/admin/articles/cover")
-//    public Result getOssToken() throws UnsupportedEncodingException {
-//        OssUtils ossUtils = new OssUtils();
-//        Map ossToken = ossUtils.getOssToken(endpoint,accessKeyId, accessKeySecret,bucketName,ARTICLE_COVER.getPath());
-//        return Result.ok(ossToken);
-//    }
-
 }

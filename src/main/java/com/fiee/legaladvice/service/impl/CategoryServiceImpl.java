@@ -53,10 +53,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
 
     @Override
     @Transactional(rollbackFor = RuntimeException.class)
-    public boolean removeBatch(List<Category> categories) {
-        for (Category category:categories) {
+    public boolean removeBatch(Long[] categories) {
+        for (Long category:categories) {
             LambdaQueryWrapper<Article> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(Article::getCategoryId,category.getId());
+            wrapper.eq(Article::getCategoryId,category);
             if (articleMapper.selectOne(wrapper) != null){
                 throw new BizException("该分类下有文章");
             }

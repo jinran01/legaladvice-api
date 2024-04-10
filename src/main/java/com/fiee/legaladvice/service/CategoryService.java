@@ -20,7 +20,7 @@ public interface CategoryService extends IService<Category> {
 
     PageResult<CategoryVO> getCategoryList(ConditionVO vo);
 
-    boolean removeBatch(List<Category> categories);
+    boolean removeBatch(Long[] categories);
 
 //    List<CategoryDTO> listCategoryDTO();
 }

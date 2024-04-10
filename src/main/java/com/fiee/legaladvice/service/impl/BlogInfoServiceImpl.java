@@ -107,7 +107,7 @@ public class BlogInfoServiceImpl implements BlogInfoService {
             increateDataDTOS = convertWeekData(list);
         }
         else {
-            increateDataDTOS = convertWeekData(list.subList(list.size() - 7, list.size() - 1));
+            increateDataDTOS = convertWeekData(list.subList(list.size() - 7, list.size()));
         }
         //文章浏览量TOP10
         Map<Object, Double> articleMap = redisService.zReverseRangeWithScore(ARTICLE_VIEWS_COUNT, 0, 4);

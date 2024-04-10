@@ -42,12 +42,9 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
                                         Authentication authentication) throws IOException {
         // 返回登录信息
         UserInfoDTO userLoginDTO = BeanCopyUtils.copyObject(UserUtils.getLoginUser(), UserInfoDTO.class);
-//        UserDetailDTO userLoginDTO = BeanCopyUtils.copyObject(UserUtils.getLoginUser(), UserDetailDTO.class);
         httpServletResponse.setContentType(APPLICATION_JSON);
         Map<String,Object> map = new HashMap<>();
         map.put("userInfo",userLoginDTO);
-//        String token = JwtUtil.createJWT(UserUtils.getLoginUser().getId().toString());
-//        map.put("token",token);
         httpServletResponse.getWriter().write(JSON.toJSONString(Result.ok(map)));
         // 更新用户ip，最近登录时间
         updateUserInfo();
