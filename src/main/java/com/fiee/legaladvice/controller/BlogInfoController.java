@@ -1,6 +1,7 @@
 package com.fiee.legaladvice.controller;
 
 import com.fiee.legaladvice.dto.BlogBackInfoDTO;
+import com.fiee.legaladvice.dto.BlogHomeInfoDTO;
 import com.fiee.legaladvice.service.BlogInfoService;
 import com.fiee.legaladvice.service.WebsiteConfigService;
 import com.fiee.legaladvice.utils.Result;
@@ -17,34 +18,39 @@ import org.springframework.web.bind.annotation.*;
  * @Version: v1.0.0
  **/
 
-@Api(tags = "博客信息模块")
+@Api(tags = "网站信息模块")
 @RestController
-@RequestMapping("/admin")
 public class BlogInfoController {
     @Autowired
     private BlogInfoService blogInfoService;
     @Autowired
     private WebsiteConfigService websiteConfigService;
+
+    @ApiOperation(value = "查看网站前台信息")
+    @GetMapping("/")
+    public Result<BlogHomeInfoDTO> getBlogHomeInfo() {
+        return Result.ok(blogInfoService.getBlogHomeInfo());
+    }
     /**
      * 查看后台信息
      *
      * @return {@link Result<BlogBackInfoDTO>} 后台信息
      */
     @ApiOperation(value = "查看后台信息")
-    @GetMapping("/")
+    @GetMapping("/admin/")
     public Result<BlogBackInfoDTO> getBlogBackInfo() {
         return Result.ok(blogInfoService.getBlogBackInfo());
     }
 
-    @ApiOperation(value = "查看博客配置信息")
-    @GetMapping("/website/config")
+    @ApiOperation(value = "查看网站配置信息")
+    @GetMapping("/admin/website/config")
     public Result<WebsiteConfigVO> getWebsiteConfig(){
         WebsiteConfigVO websiteConfig = websiteConfigService.getWebsiteConfig();
         return Result.ok(websiteConfig);
     }
 
     @ApiOperation(value = "保存网站配置信息")
-    @PostMapping("/website/config")
+    @PostMapping("/admin/website/config")
     public Result saveWebsiteConfig(@RequestBody WebsiteConfigVO vo){
         websiteConfigService.saveWebsiteConfig(vo);
         return Result.ok();

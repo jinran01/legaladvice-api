@@ -32,7 +32,6 @@ public class SystemController {
     @ApiOperation("获取OSSPolicy")
     @GetMapping("/oss/policy")
     public Result getPolicy(@RequestParam("path") String path) throws UnsupportedEncodingException {
-        System.out.println(path);
         return Result.ok(ossUploadUtils.getOssPolicy(
                 aliProperties.getEndpoint(),
                 aliProperties.getAccessKeyId(),
