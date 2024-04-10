@@ -1,41 +1,44 @@
 package com.fiee.legaladvice.entity;
 
+import cn.hutool.core.date.DateTime;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
- * @Author: Fiee
- * @ClassName: com.fiee.legaladvice.entity
- * @Date: 2024/3/2
- * @Version: v1.0.0
- **/
+ * 页面
+ * @TableName tb_page
+ */
+@TableName(value ="tb_page")
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@TableName("tb_website_config")
-public class WebsiteConfig implements Serializable {
+public class Page implements Serializable {
     /**
-     * id
+     * 页面id
      */
     @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 配置信息
+     * 页面名
      */
-    private String config;
+    private String pageName;
+
+    /**
+     * 页面标签
+     */
+    private String pageLabel;
+
+    /**
+     * 页面封面
+     */
+    private String pageCover;
 
     /**
      * 创建时间
@@ -53,5 +56,6 @@ public class WebsiteConfig implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
+    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

@@ -46,7 +46,7 @@ public class MessageController {
     public Result delMessages(@RequestBody List<Integer> ids){
         return Result.ok(messageService.removeBatchByIds(ids));
     }
-    @ApiOperation("添加留言列表")
+    @ApiOperation("添加留言")
     @PostMapping("/messages")
     public Result addMessages(@RequestBody Message message, HttpServletRequest request){
         return Result.ok(messageService.saveMessage(message,request));
