@@ -37,15 +37,15 @@ public class OssUploadUtils {
 
         PolicyConditions policyConds = new PolicyConditions();
         policyConds.addConditionItem(PolicyConditions.COND_CONTENT_LENGTH_RANGE,0,1048576000);
-        policyConds.addConditionItem(MatchMode.StartWith,PolicyConditions.COND_KEY,path);
+        policyConds.addConditionItem(MatchMode.StartWith,PolicyConditions.COND_KEY,path+'/');
         String postPolicy = ossClient.generatePostPolicy(expiration, policyConds);
         byte[] binaryData = postPolicy.getBytes("utf-8");
         String encodedPolicy = BinaryUtil.toBase64String(binaryData);
         String postSignature = ossClient.calculatePostSignature(postPolicy);
-        respMap.put("accessKeyId","LTAI5tHUF9rxQY49rLCP6F6L");
+        respMap.put("accessKeyId",accessKeyId);
         respMap.put("policy",encodedPolicy);
         respMap.put("signature",postSignature);
-        respMap.put("dir",path);
+        respMap.put("dir",path+'/');
         respMap.put("host",host);
         respMap.put("expire",String.valueOf(expireEndTime /1000));
         ossClient.shutdown();

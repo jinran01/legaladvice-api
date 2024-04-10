@@ -41,7 +41,7 @@ public class LoginController {
         String uuid = codeInfo.get("uuid");
         String userCode = codeInfo.get("code");
         String code = redisService.get(uuid).toString();
-        if (MakeCodeUtils.checkCode(code,userCode) && Objects.nonNull(code)){
+        if (MakeCodeUtils.checkCode(code,userCode)){
             return Result.ok();
         }else {
             return Result.fail("验证码错误或者过期！");

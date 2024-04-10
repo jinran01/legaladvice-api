@@ -41,7 +41,7 @@ public class ArticleController {
     }
 
     @OptLog(optType = SAVE_OR_UPDATE)
-    @ApiOperation("添加获取修改文章")
+    @ApiOperation("添加或修改文章")
     @PostMapping("/admin/articles")
     public Result saveArticle(@RequestBody ArticleVO articleVO){
         return Result.ok(articleService.saveOrUpdateArticle(articleVO));

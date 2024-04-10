@@ -7,9 +7,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -33,7 +31,8 @@ public class SystemController {
 
     @ApiOperation("获取OSSPolicy")
     @GetMapping("/oss/policy")
-    public Result getPolicy(String path) throws UnsupportedEncodingException {
+    public Result getPolicy(@RequestParam("path") String path) throws UnsupportedEncodingException {
+        System.out.println(path);
         return Result.ok(ossUploadUtils.getOssPolicy(
                 aliProperties.getEndpoint(),
                 aliProperties.getAccessKeyId(),
