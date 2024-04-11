@@ -1,22 +1,21 @@
 package com.fiee.legaladvice.service.impl;
 
+import cn.hutool.core.exceptions.ExceptionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fiee.legaladvice.dto.ArticleBackDTO;
-import com.fiee.legaladvice.dto.ArticleDTO;
-import com.fiee.legaladvice.dto.ArticleHomeDTO;
+import com.fiee.legaladvice.dto.*;
 import com.fiee.legaladvice.entity.Article;
 import com.fiee.legaladvice.entity.ArticleTag;
 import com.fiee.legaladvice.entity.Category;
 import com.fiee.legaladvice.entity.Tag;
+import com.fiee.legaladvice.exception.BizException;
 import com.fiee.legaladvice.mapper.TagMapper;
-import com.fiee.legaladvice.service.ArticleService;
+import com.fiee.legaladvice.service.*;
 import com.fiee.legaladvice.mapper.ArticleMapper;
-import com.fiee.legaladvice.service.ArticleTagService;
-import com.fiee.legaladvice.service.CategoryService;
-import com.fiee.legaladvice.service.TagService;
 import com.fiee.legaladvice.utils.BeanCopyUtils;
+import com.fiee.legaladvice.utils.CommonUtils;
 import com.fiee.legaladvice.utils.UserUtils;
 import com.fiee.legaladvice.vo.ArticleVO;
 import com.fiee.legaladvice.vo.ConditionVO;
@@ -26,12 +25,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import javax.servlet.http.HttpSession;
+import java.io.ByteArrayInputStream;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static com.fiee.legaladvice.constant.CommonConst.ARTICLE_SET;
+import static com.fiee.legaladvice.constant.CommonConst.FALSE;
+import static com.fiee.legaladvice.constant.RedisPrefixConst.ARTICLE_LIKE_COUNT;
+import static com.fiee.legaladvice.constant.RedisPrefixConst.ARTICLE_VIEWS_COUNT;
 import static com.fiee.legaladvice.enums.ArticleStatusEnum.DRAFT;
+import static com.fiee.legaladvice.enums.ArticleStatusEnum.PUBLIC;
 
 /**
  * @author Fiee
@@ -41,6 +46,9 @@ import static com.fiee.legaladvice.enums.ArticleStatusEnum.DRAFT;
 @Service
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         implements ArticleService {
+
+    @Autowired
+    private HttpSession session;
 
     @Autowired
     private CategoryService categoryService;
@@ -53,6 +61,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 
     @Autowired
     private TagService tagService;
+    @Autowired
+    private RedisService redisService;
 
     /**
      * 首页文章
@@ -176,14 +186,72 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     /**
-     * @param id
+     * @param articleId
      * @return
      */
     @Override
-    public ArticleDTO getArticleById(Integer id) {
-        return null;
+    public ArticleDTO getArticleById(Integer articleId) {
+        // 查询推荐文章
+        CompletableFuture<List<ArticleRecommendDTO>> recommendArticleList = CompletableFuture.supplyAsync(() -> baseMapper.listRecommendArticles(articleId));
+        // 查询最新文章
+        CompletableFuture<List<ArticleRecommendDTO>> newestArticleList = CompletableFuture.supplyAsync(() -> {
+            List<Article> articleList = this.list(new LambdaQueryWrapper<Article>()
+                    .select(Article::getId, Article::getArticleTitle, Article::getArticleCover, Article::getCreateTime).eq(Article::getIsDelete, FALSE)
+                    .eq(Article::getStatus, PUBLIC.getStatus()).orderByDesc(Article::getId).last("limit 5"));
+            return BeanCopyUtils.copyList(articleList, ArticleRecommendDTO.class);
+        });
+        // 查询id对应文章
+        ArticleDTO article = baseMapper.getArticleById(articleId);
+        if (Objects.isNull(article)) {
+            throw new BizException("文章不存在");
+        }
+        // 更新文章浏览量
+        updateArticleViewsCount(articleId);
+        // 查询上一篇下一篇文章
+        Article lastArticle = baseMapper.selectOne(new LambdaQueryWrapper<Article>()
+                .select(Article::getId, Article::getArticleTitle, Article::getArticleCover)
+                .eq(Article::getIsDelete, FALSE)
+                .eq(Article::getStatus, PUBLIC.getStatus())
+                .lt(Article::getId, articleId)
+                .orderByDesc(Article::getId).last("limit 1"));
+        Article nextArticle = baseMapper.selectOne(new LambdaQueryWrapper<Article>()
+                .select(Article::getId, Article::getArticleTitle, Article::getArticleCover)
+                .eq(Article::getIsDelete, FALSE)
+                .eq(Article::getStatus, PUBLIC.getStatus())
+                .gt(Article::getId, articleId).orderByAsc(Article::getId)
+                .last("limit 1"));
+        article.setLastArticle(BeanCopyUtils.copyObject(lastArticle, ArticlePaginationDTO.class));
+        article.setNextArticle(BeanCopyUtils.copyObject(nextArticle, ArticlePaginationDTO.class));
+        // 封装点赞量和浏览量
+        Double score = redisService.zScore(ARTICLE_VIEWS_COUNT, articleId);
+        if (Objects.nonNull(score)) {
+            article.setViewsCount(score.intValue());
+        }
+        article.setLikeCount((Integer) redisService.hGet(ARTICLE_LIKE_COUNT, articleId.toString()));
+        // 封装文章信息
+        try {
+            article.setRecommendArticleList(recommendArticleList.get());
+            article.setNewestArticleList(newestArticleList.get());
+        } catch (Exception e) {
+            log.error(StrUtil.format("堆栈信息:{}", ExceptionUtil.stacktraceToString(e)));
+        }
+        return article;
     }
-
+    /**
+     * 更新文章浏览量
+     *
+     * @param articleId 文章id
+     */
+    public void updateArticleViewsCount(Integer articleId) {
+        // 判断是否第一次访问，增加浏览量
+        Set<Integer> articleSet = CommonUtils.castSet(Optional.ofNullable(session.getAttribute(ARTICLE_SET)).orElseGet(HashSet::new), Integer.class);
+        if (!articleSet.contains(articleId)) {
+            articleSet.add(articleId);
+            session.setAttribute(ARTICLE_SET, articleSet);
+            // 浏览量+1
+            redisService.zIncr(ARTICLE_VIEWS_COUNT, articleId, 1D);
+        }
+    }
     /**
      * 查询后台文章
      * @param vo
@@ -200,6 +268,26 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         return new PageResult<>(articleList,count);
     }
 
+    @Override
+    public List<String> exportArticles(List<Integer> articleIdList) {
+        // 查询文章信息
+//        List<Article> articleList = articleService.selectList(new LambdaQueryWrapper<Article>()
+//                .select(Article::getArticleTitle, Article::getArticleContent)
+//                .in(Article::getId, articleIdList));
+//        // 写入文件并上传
+//        List<String> urlList = new ArrayList<>();
+//        for (Article article : articleList) {
+//            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(article.getArticleContent().getBytes())) {
+//                String url = uploadStrategyContext.executeUploadStrategy(article.getArticleTitle() + FileExtEnum.MD.getExtName(), inputStream, FilePathEnum.MD.getPath());
+//                urlList.add(url);
+//            } catch (Exception e) {
+//                log.error(StrUtil.format("导入文章失败,堆栈:{}", ExceptionUtil.stacktraceToString(e)));
+//                throw new BizException("导出文章失败");
+//            }
+//        }
+//        return urlList;
+        return null;
+    }
     /**
      * 物理删除文章
      * @param articleIds 文章ids

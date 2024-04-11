@@ -27,4 +27,6 @@ public interface ArticleService extends IService<Article> {
     PageResult<ArticleBackDTO> getBackArticle(ConditionVO vo);
 
     boolean deleteArticle(Long[] articleIds);
+
+    List<String> exportArticles(List<Integer> articleIdList);
 }

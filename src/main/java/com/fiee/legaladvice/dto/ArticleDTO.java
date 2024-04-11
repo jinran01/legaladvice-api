@@ -38,6 +38,15 @@ public class ArticleDTO {
      */
     private String articleContent;
 
+    /**
+     * 点赞量
+     */
+    private Integer likeCount;
+
+    /**
+     * 浏览量
+     */
+    private Integer viewsCount;
 
     /**
      * 文章类型
@@ -54,6 +63,15 @@ public class ArticleDTO {
      */
     private LocalDateTime createTime;
 
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
+
+    /**
+     * 文章分类id
+     */
+    private Integer categoryId;
 
     /**
      * 文章分类名
@@ -65,24 +83,24 @@ public class ArticleDTO {
      */
     private List<TagDTO> tagDTOList;
 
-//    /**
-//     * 上一篇文章
-//     */
-//    private ArticlePaginationDTO lastArticle;
-//
-//    /**
-//     * 下一篇文章
-//     */
-//    private ArticlePaginationDTO nextArticle;
-//
-//    /**
-//     * 推荐文章列表
-//     */
-//    private List<ArticleRecommendDTO> recommendArticleList;
-//
-//    /**
-//     * 最新文章列表
-//     */
-//    private List<ArticleRecommendDTO> newestArticleList;
+    /**
+     * 上一篇文章
+     */
+    private ArticlePaginationDTO lastArticle;
+
+    /**
+     * 下一篇文章
+     */
+    private ArticlePaginationDTO nextArticle;
+
+    /**
+     * 推荐文章列表
+     */
+    private List<ArticleRecommendDTO> recommendArticleList;
+
+    /**
+     * 最新文章列表
+     */
+    private List<ArticleRecommendDTO> newestArticleList;
 
 }
