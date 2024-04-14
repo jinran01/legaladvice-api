@@ -21,7 +21,7 @@ import java.util.List;
 */
 @Mapper
 public interface ArticleMapper extends BaseMapper<Article> {
-    List<ArticleHomeDTO> homeArticleList();
+    List<ArticleHomeDTO> homeArticleList(@Param("vo") ConditionVO vo,@Param("current") Long current);
 
     List<ArticleBackDTO> backArticleList(@Param("vo") ConditionVO vo,@Param("current") Long current,@Param("size") Long size);
 

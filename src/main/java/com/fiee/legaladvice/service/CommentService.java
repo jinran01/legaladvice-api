@@ -2,7 +2,9 @@ package com.fiee.legaladvice.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fiee.legaladvice.dto.CommentDTO;
 import com.fiee.legaladvice.entity.Comment;
+import com.fiee.legaladvice.vo.CommentVO;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
 
@@ -13,4 +15,9 @@ import com.fiee.legaladvice.vo.PageResult;
 */
 public interface CommentService extends IService<Comment> {
     PageResult getCommentList(ConditionVO vo);
+
+
+    PageResult<CommentDTO> listComments(CommentVO vo);
+
+//    void saveComment(CommentVO commentVO);
 }

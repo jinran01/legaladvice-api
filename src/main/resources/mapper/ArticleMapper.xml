@@ -77,7 +77,8 @@
               WHERE is_delete = 0
                 AND status = 1
               ORDER BY is_top DESC,
-                       id DESC) a
+                       id DESC
+                  LIMIT #{current},#{vo.size}) a
                  JOIN tb_category c ON a.category_id = c.id
                  JOIN tb_article_tag atg ON a.id = atg.article_id
                  JOIN tb_tag t ON atg.tag_id = t.id

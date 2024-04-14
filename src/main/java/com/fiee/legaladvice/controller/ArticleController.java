@@ -93,8 +93,8 @@ public class ArticleController {
      */
     @ApiOperation("查看首页文章")
     @GetMapping("/articles")
-    public Result getHomeArticles(){
-        return Result.ok(articleService.getHomeArticles());
+    public Result getHomeArticles(ConditionVO vo){
+        return Result.ok(articleService.getHomeArticles(vo));
     }
 
     /**

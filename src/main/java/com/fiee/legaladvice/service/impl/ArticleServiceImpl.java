@@ -20,6 +20,7 @@ import com.fiee.legaladvice.utils.UserUtils;
 import com.fiee.legaladvice.vo.ArticleVO;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,8 +70,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
      * @return
      */
     @Override
-    public List<ArticleHomeDTO> getHomeArticles() {
-        return baseMapper.homeArticleList();
+    public List<ArticleHomeDTO> getHomeArticles(ConditionVO vo) {
+        return baseMapper.homeArticleList(vo,(vo.getCurrent()-1)*vo.getSize());
     }
 
     /**

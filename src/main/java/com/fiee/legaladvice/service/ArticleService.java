@@ -18,7 +18,7 @@ import java.util.List;
 */
 public interface ArticleService extends IService<Article> {
 
-    List<ArticleHomeDTO> getHomeArticles();
+    List<ArticleHomeDTO> getHomeArticles(ConditionVO vo);
 
     boolean saveOrUpdateArticle(ArticleVO articleVO);
     ArticleVO getArticleBackById(Integer articleId);
