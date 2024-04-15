@@ -11,6 +11,7 @@ import com.fiee.legaladvice.service.CommentService;
 import com.fiee.legaladvice.mapper.CommentMapper;
 import com.fiee.legaladvice.service.RedisService;
 import com.fiee.legaladvice.utils.PageUtils;
+import com.fiee.legaladvice.utils.UserUtils;
 import com.fiee.legaladvice.vo.CommentVO;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static com.fiee.legaladvice.constant.CommonConst.TRUE;
 import static com.fiee.legaladvice.constant.RedisPrefixConst.COMMENT_LIKE_COUNT;
+import static com.fiee.legaladvice.constant.RedisPrefixConst.COMMENT_USER_LIKE;
 
 /**
 * @author Fiee
@@ -54,7 +56,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                 .eq(Objects.nonNull(commentVO.getTopicId()), Comment::getTopicId, commentVO.getTopicId())
                 .eq(Comment::getType, commentVO.getType())
                 .isNull(Comment::getParentId)
-                .eq(Comment::getIsReview, TRUE)));
+                .eq(Comment::getIsReview, 1)));
         if (commentCount == 0) {
             return new PageResult<>();
         }
@@ -86,6 +88,23 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             item.setReplyCount(replyCountMap.get(item.getId()));
         });
         return new PageResult<>(commentDTOList, commentCount);
+    }
+
+    @Override
+    public void saveCommentLike(Integer commentId) {
+        // 判断是否点赞
+        String commentLikeKey = COMMENT_USER_LIKE + UserUtils.getLoginUser().getUserInfoId();
+        if (redisService.sIsMember(commentLikeKey, commentId)) {
+            // 点过赞则删除评论id
+            redisService.sRemove(commentLikeKey, commentId);
+            // 评论点赞量-1
+            redisService.hDecr(COMMENT_LIKE_COUNT, commentId.toString(), 1L);
+        } else {
+            // 未点赞则增加评论id
+            redisService.sAdd(commentLikeKey, commentId);
+            // 评论点赞量+1
+            redisService.hIncr(COMMENT_LIKE_COUNT, commentId.toString(), 1L);
+        }
     }
 }
 

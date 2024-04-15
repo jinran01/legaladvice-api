@@ -11,6 +11,7 @@ import com.fiee.legaladvice.mapper.CategoryMapper;
 import com.fiee.legaladvice.service.*;
 import com.fiee.legaladvice.utils.BeanCopyUtils;
 import com.fiee.legaladvice.utils.IpUtils;
+import com.fiee.legaladvice.vo.PageVO;
 import com.fiee.legaladvice.vo.WebsiteConfigVO;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.OperatingSystem;
@@ -55,6 +56,8 @@ public class BlogInfoServiceImpl implements BlogInfoService {
     private  WebsiteConfigService websiteConfigService;
     @Autowired
     private  IncreateDataService increateDataService;
+    @Autowired
+    private  PageService pageService;
     @Override
     public BlogHomeInfoDTO getBlogHomeInfo() {
         // 查询文章数量
@@ -71,7 +74,7 @@ public class BlogInfoServiceImpl implements BlogInfoService {
         // 查询网站配置
         WebsiteConfigVO websiteConfig = this.getWebsiteConfig();
         // 查询页面图片
-//        List<PageVO> pageVOList = pageService.listPages();
+        List<PageVO> pageVOList = pageService.listPages();
         // 封装数据
         return BlogHomeInfoDTO.builder()
                 .articleCount(Math.toIntExact(articleCount))
@@ -79,7 +82,7 @@ public class BlogInfoServiceImpl implements BlogInfoService {
                 .tagCount(Math.toIntExact(tagCount))
                 .viewsCount(viewsCount)
                 .websiteConfig(websiteConfig)
-//                .pageList(pageVOList)
+                .pageList(pageVOList)
                 .build();
     }
     @Override

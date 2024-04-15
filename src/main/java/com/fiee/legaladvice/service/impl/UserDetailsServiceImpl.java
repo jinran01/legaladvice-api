@@ -7,6 +7,7 @@ import com.fiee.legaladvice.entity.UserAuth;
 import com.fiee.legaladvice.entity.UserInfo;
 import com.fiee.legaladvice.events.UserDetailsUpdatedEvent;
 import com.fiee.legaladvice.exception.BizException;
+import com.fiee.legaladvice.service.RedisService;
 import com.fiee.legaladvice.service.RoleService;
 import com.fiee.legaladvice.service.UserAuthService;
 import com.fiee.legaladvice.service.UserInfoService;
@@ -24,6 +25,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+
+import static com.fiee.legaladvice.constant.RedisPrefixConst.*;
 
 /**
  * @Author: Fiee
@@ -44,6 +48,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private RoleService roleService;
     @Resource
     private HttpServletRequest request;
+    @Resource
+    private RedisService redisService;
 
 //    private ApplicationEventPublisher applicationEventPublisher;
 
@@ -81,8 +87,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // 查询账号角色
         List<String> roleList = roleService.listRolesByUserInfoId(userInfo.getId());
         // 查询账号点赞信息
-//        Set<Object> articleLikeSet = redisService.sMembers(ARTICLE_USER_LIKE + userInfo.getId());
-//        Set<Object> commentLikeSet = redisService.sMembers(COMMENT_USER_LIKE + userInfo.getId());
+        Set<Object> articleLikeSet = redisService.sMembers(ARTICLE_USER_LIKE + userInfo.getId());
+        Set<Object> commentLikeSet = redisService.sMembers(COMMENT_USER_LIKE + userInfo.getId());
 //        Set<Object> talkLikeSet = redisService.sMembers(TALK_USER_LIKE + userInfo.getId());
         // 获取设备信息
         String ipAddress = IpUtils.getIpAddress(request);
@@ -103,8 +109,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .avatar(userInfo.getAvatar())
                 .intro(userInfo.getIntro())
                 .webSite(userInfo.getWebSite())
-                .articleLikeSet(null)
-                .commentLikeSet(null)
+                .articleLikeSet(articleLikeSet)
+                .commentLikeSet(commentLikeSet)
                 .talkLikeSet(null)
                 .ipAddress(ipAddress)
                 .ipSource(ipSource)

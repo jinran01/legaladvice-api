@@ -19,5 +19,7 @@ public interface CommentService extends IService<Comment> {
 
     PageResult<CommentDTO> listComments(CommentVO vo);
 
+    void saveCommentLike(Integer commentId);
+
 //    void saveComment(CommentVO commentVO);
 }

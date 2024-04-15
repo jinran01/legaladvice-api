@@ -47,6 +47,20 @@ public class CommentController {
 //        commentService.saveComment(commentVO);
         return Result.ok();
     }
+    /**
+     * 评论点赞
+     *
+     * @param commentId 评论id
+     * @return {@link Result<>}
+     */
+    @ApiOperation(value = "评论点赞")
+    @PostMapping("/comments/{commentId}/like")
+    public Result<?> saveCommentLike(@PathVariable("commentId") Integer commentId) {
+        commentService.saveCommentLike(commentId);
+        return Result.ok();
+    }
+
+
     @ApiOperation("查询后台评论")
     @GetMapping("/admin/comments")
     public Result searchCategory(ConditionVO vo){

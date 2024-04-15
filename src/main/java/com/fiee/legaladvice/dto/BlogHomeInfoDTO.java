@@ -1,5 +1,6 @@
 package com.fiee.legaladvice.dto;
 
+import com.fiee.legaladvice.vo.PageVO;
 import com.fiee.legaladvice.vo.WebsiteConfigVO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,6 +48,6 @@ public class BlogHomeInfoDTO {
     /**
      * 页面列表
      */
-//    private List<PageVO> pageList;
+    private List<PageVO> pageList;
 
 }
