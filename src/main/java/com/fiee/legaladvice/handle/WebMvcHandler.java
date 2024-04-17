@@ -41,7 +41,7 @@ public class WebMvcHandler implements HandlerInterceptor {
                 Long seconds = Long.valueOf(limit.seconds());
                 int maxCount = limit.count();
                 // 关于key的生成规则可以自己定义 本项目需求是对每个方法都加上限流功能，如果你只是针对ip地址限流，那么key只需要只用ip就好
-                String key = IpUtils.getIpAddress(request) + hm.getMethod().getName();
+                String key = IpUtils.getIpAddress(request) + "-" + hm.getMethod().getName();
                 //从redis中获取用户请求次数
                 try{
                     Long count = redisService.incrExpire(key, seconds);

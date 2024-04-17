@@ -36,14 +36,6 @@ public class UserAuthController {
     private UserAuthService userAuthService;
     @Autowired
     private UserInfoService userInfoService;
-//    @Value("${upload.oss.endpoint}")
-//    public String endpoint;
-//    @Value("${upload.oss.accessKeySecret}")
-//    public String accessKeySecret;
-//    @Value("${upload.oss.accessKeyId}")
-//    public String accessKeyId;
-//    @Value("${upload.oss.bucketName}")
-//    public String bucketName;
 
     @ApiOperation("用户列表")
     @GetMapping("/users")
@@ -81,14 +73,6 @@ public class UserAuthController {
         userAuthService.removeUser(userInfoId);
         return Result.fail("操作成功！");
     }
-
-//    @ApiOperation("获取AvatarOssToken")
-//    @GetMapping("/getAvatarOssToken")
-//    public Result getOssToken() throws UnsupportedEncodingException {
-//        OssUtils ossUtils = new OssUtils();
-//        Map ossToken = ossUtils.getOssToken(endpoint,accessKeyId, accessKeySecret,bucketName,AVATAR.getPath());
-//        return Result.ok(ossToken);
-//    }
     @OptLog(optType = UPDATE)
     @ApiOperation("更新后台用户头像")
     @PostMapping("/users/avatar")
@@ -114,7 +98,6 @@ public class UserAuthController {
         return Result.ok(userAuthService.updateUserInfo(userInfo));
     }
 
-
     /**
      * 获取当前用户信息
      * @param authentication
@@ -125,12 +108,11 @@ public class UserAuthController {
     public Result getUserInfo(Authentication authentication){
         return Result.ok(authentication.getPrincipal());
     }
-    @AccessLimit(count = 3)
-    @PostMapping("/users/send")
-    public Result sendMailCode(@RequestBody String username){
 
-        userAuthService.sendCode(username);
-        return Result.ok("发送成功");
-    }
+//    @PostMapping("/users/send")
+//    public Result sendMailCode(@RequestBody String username){
+//        userAuthService.sendCode(username);
+//        return Result.ok("发送成功");
+//    }
 
 }

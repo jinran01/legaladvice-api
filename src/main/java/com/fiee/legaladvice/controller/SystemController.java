@@ -1,8 +1,13 @@
 package com.fiee.legaladvice.controller;
 
+import com.fiee.legaladvice.annotation.AccessLimit;
 import com.fiee.legaladvice.properties.AliProperties;
+import com.fiee.legaladvice.service.RedisService;
+import com.fiee.legaladvice.service.impl.SystemServiceImpl;
+import com.fiee.legaladvice.utils.MakeCodeUtils;
 import com.fiee.legaladvice.utils.OssUploadUtils;
 import com.fiee.legaladvice.utils.Result;
+import com.fiee.legaladvice.utils.UserUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+
+import static com.fiee.legaladvice.constant.RedisPrefixConst.USER_CODE_KEY;
 
 /**
  * @Author: Fiee
@@ -28,6 +35,8 @@ public class SystemController {
     private OssUploadUtils ossUploadUtils;
     @Autowired
     private AliProperties aliProperties;
+    @Autowired
+    private RedisService redisService;
 
     @ApiOperation("获取OSSPolicy")
     @GetMapping("/oss/policy")
@@ -38,5 +47,18 @@ public class SystemController {
                 aliProperties.getAccessKeySecret(),
                 path));
     }
+    @AccessLimit(count = 5)
+    @ApiOperation("获取邮箱验证码")
+    @GetMapping("/email/code")
+    public Result getEmailCode(String username) {
+        new SystemServiceImpl().sendCode(username);
+        return Result.ok();
+    }
 
+    @ApiOperation("注册用户")
+    @PostMapping("/user/register")
+    public Result userRegister(@RequestBody Map<String,String> map) {
+        new SystemServiceImpl().registerUser(map);
+        return Result.ok("初始密码为:123456");
+    }
 }

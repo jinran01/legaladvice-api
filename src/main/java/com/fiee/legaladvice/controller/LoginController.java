@@ -31,7 +31,7 @@ public class LoginController {
     @ApiOperation("获取登录验证码")
     @GetMapping("/getLoginCode/{uuid}")
     public void getLoginCode(HttpServletResponse response,@PathVariable String uuid) throws IOException {
-        String code = MakeCodeUtils.makeCode(response, uuid);
+        String code = MakeCodeUtils.makeCode(response);
         redisService.set(uuid,code,30);
     }
 

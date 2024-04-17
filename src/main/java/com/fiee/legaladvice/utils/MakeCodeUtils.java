@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * @Author: Fiee
@@ -19,12 +20,9 @@ import java.util.Map;
  **/
 @Component
 public  class MakeCodeUtils {
-//    @Autowired
-//    private RedisService redisService;
-    public static String makeCode(HttpServletResponse response,String uuid) throws IOException {
+    public static String makeCode(HttpServletResponse response) throws IOException {
         ShearCaptcha captcha = CaptchaUtil.createShearCaptcha(132, 38, 4, 4);
         String code = captcha.getCode();
-//        redisService.set(uuid,code);
         captcha.write(response.getOutputStream());
         return code;
     }
@@ -33,4 +31,6 @@ public  class MakeCodeUtils {
     public static boolean checkCode(String code,String userCode){
         return code.equalsIgnoreCase(userCode);
     }
+
+
 }

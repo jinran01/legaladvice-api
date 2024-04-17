@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 import static com.fiee.legaladvice.constant.MQPrefixConst.EMAIL_EXCHANGE;
 import static com.fiee.legaladvice.constant.RedisPrefixConst.*;
-import static com.fiee.legaladvice.enums.EmailEnum.SEND_CODE;
+import static com.fiee.legaladvice.enums.EmailEnum.COMMON_CODE;
 import static com.fiee.legaladvice.utils.CommonUtils.checkEmail;
 import static com.fiee.legaladvice.utils.CommonUtils.getRandomCode;
 
@@ -211,8 +211,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         }
         EmailDTO emailDTO = EmailDTO.builder()
                 .email(username)
-                .subject(SEND_CODE.getSubject())
-                .template(SEND_CODE.getTemplate())
+                .subject(COMMON_CODE.getSubject())
+                .template(COMMON_CODE.getTemplate())
                 .build();
         //获取验证码
         String code = getRandomCode(6);

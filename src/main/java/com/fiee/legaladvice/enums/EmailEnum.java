@@ -13,9 +13,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum EmailEnum {
     /**
-     * 发送邮箱验证码
+     * 发送注册\修改邮箱验证码
      */
-    SEND_CODE("验证码","MailCode.html");
+    COMMON_CODE("验证码","common.html");
 
 
     private final String subject;
