@@ -1,6 +1,7 @@
 package com.fiee.legaladvice.controller;
 
 import com.fiee.legaladvice.dto.CommentDTO;
+import com.fiee.legaladvice.dto.ReplyDTO;
 import com.fiee.legaladvice.entity.Comment;
 import com.fiee.legaladvice.annotation.OptLog;
 import com.fiee.legaladvice.service.CommentService;
@@ -9,12 +10,14 @@ import com.fiee.legaladvice.vo.CommentVO;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.fiee.legaladvice.constant.OptTypeConst.*;
 
@@ -44,7 +47,7 @@ public class CommentController {
     @ApiOperation(value = "添加评论")
     @PostMapping("/comments")
     public Result<?> saveComment(@Valid @RequestBody CommentVO commentVO) {
-//        commentService.saveComment(commentVO);
+        commentService.saveComment(commentVO);
         return Result.ok();
     }
     /**
@@ -59,7 +62,18 @@ public class CommentController {
         commentService.saveCommentLike(commentId);
         return Result.ok();
     }
-
+    /**
+     * 查询评论下的回复
+     *
+     * @param commentId 评论id
+     * @return {@link Result<ReplyDTO>} 回复列表
+     */
+    @ApiOperation(value = "查询评论下的回复")
+    @ApiImplicitParam(name = "commentId", value = "评论id", required = true, dataType = "Integer")
+    @GetMapping("/comments/{commentId}/replies")
+    public Result<List<ReplyDTO>> listRepliesByCommentId(@PathVariable("commentId") Integer commentId) {
+        return Result.ok(commentService.listRepliesByCommentId(commentId));
+    }
 
     @ApiOperation("查询后台评论")
     @GetMapping("/admin/comments")

@@ -11,6 +11,7 @@ import com.fiee.legaladvice.service.RedisService;
 import com.fiee.legaladvice.service.UserAuthService;
 import com.fiee.legaladvice.service.UserInfoService;
 import com.fiee.legaladvice.service.UserRoleService;
+import org.apache.catalina.User;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -116,6 +117,18 @@ public class SystemServiceImpl {
             }
         }else {
             throw new BizException("该邮箱已被注册");
+        }
+    }
+    @Transactional
+    public void forgetPass(Map<String, String> map) {
+        LambdaQueryWrapper<UserAuth> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserAuth::getUsername,map.get("username"));
+        UserAuth userAuth = userAuthService.getOne(wrapper);
+        if (Objects.isNull(userAuth)){
+            throw new BizException("该用户不存在！");
+        }else {
+            userAuth.setPassword(new BCryptPasswordEncoder().encode(map.get("password")));
+            userAuthService.saveOrUpdate(userAuth);
         }
     }
 }

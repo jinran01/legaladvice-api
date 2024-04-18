@@ -109,4 +109,17 @@ public class ArticleController {
     public Result<ArticleDTO> getArticleById(@PathVariable("articleId") Integer articleId) {
         return Result.ok(articleService.getArticleById(articleId));
     }
+    /**
+     * 点赞文章
+     *
+     * @param articleId 文章id
+     * @return {@link Result<>}
+     */
+    @ApiOperation(value = "点赞文章")
+    @ApiImplicitParam(name = "articleId", value = "文章id", required = true, dataType = "Integer")
+    @PostMapping("/articles/{articleId}/like")
+    public Result<?> saveArticleLike(@PathVariable("articleId") Integer articleId) {
+        articleService.saveArticleLike(articleId);
+        return Result.ok();
+    }
 }

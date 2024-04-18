@@ -61,4 +61,11 @@ public class SystemController {
         new SystemServiceImpl().registerUser(map);
         return Result.ok("初始密码为:123456");
     }
+
+    @ApiOperation("忘记密码")
+    @PostMapping("/user/forget/pass")
+    public Result userForget(@RequestBody Map<String,String> map) {
+        new SystemServiceImpl().forgetPass(map);
+        return Result.ok();
+    }
 }

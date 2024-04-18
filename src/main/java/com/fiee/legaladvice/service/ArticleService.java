@@ -29,4 +29,6 @@ public interface ArticleService extends IService<Article> {
     boolean deleteArticle(Long[] articleIds);
 
     List<String> exportArticles(List<Integer> articleIdList);
+
+    void saveArticleLike(Integer articleId);
 }

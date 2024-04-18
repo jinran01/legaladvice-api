@@ -7,14 +7,17 @@ import com.fiee.legaladvice.dto.CommentDTO;
 import com.fiee.legaladvice.dto.ReplyCountDTO;
 import com.fiee.legaladvice.dto.ReplyDTO;
 import com.fiee.legaladvice.entity.Comment;
+import com.fiee.legaladvice.service.BlogInfoService;
 import com.fiee.legaladvice.service.CommentService;
 import com.fiee.legaladvice.mapper.CommentMapper;
 import com.fiee.legaladvice.service.RedisService;
+import com.fiee.legaladvice.utils.HTMLUtils;
 import com.fiee.legaladvice.utils.PageUtils;
 import com.fiee.legaladvice.utils.UserUtils;
 import com.fiee.legaladvice.vo.CommentVO;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
+import com.fiee.legaladvice.vo.WebsiteConfigVO;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static com.fiee.legaladvice.constant.CommonConst.TRUE;
@@ -29,16 +33,19 @@ import static com.fiee.legaladvice.constant.RedisPrefixConst.COMMENT_LIKE_COUNT;
 import static com.fiee.legaladvice.constant.RedisPrefixConst.COMMENT_USER_LIKE;
 
 /**
-* @author Fiee
-* @description 针对表【tb_comment】的数据库操作Service实现
-* @createDate 2024-04-08 20:10:56
-*/
+ * @author Fiee
+ * @description 针对表【tb_comment】的数据库操作Service实现
+ * @createDate 2024-04-08 20:10:56
+ */
 @Service
 public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
-    implements CommentService{
+        implements CommentService {
 
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private BlogInfoService blogInfoService;
+
     @Override
     public PageResult getCommentList(ConditionVO vo) {
 
@@ -46,7 +53,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
 
         List<Comment> commentList = baseMapper.getCommentList(vo, (vo.getCurrent() - 1) * vo.getSize(), vo.getSize());
 
-        return new PageResult<>(commentList,count);
+        return new PageResult<>(commentList, count);
     }
 
     @Override
@@ -105,6 +112,42 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             // 评论点赞量+1
             redisService.hIncr(COMMENT_LIKE_COUNT, commentId.toString(), 1L);
         }
+    }
+
+    @Override
+    public void saveComment(CommentVO commentVO) {
+        // 判断是否需要审核
+        WebsiteConfigVO websiteConfig = blogInfoService.getWebsiteConfig();
+        Integer isReview = websiteConfig.getIsCommentReview();
+        // 过滤标签
+        commentVO.setCommentContent(HTMLUtils.filter(commentVO.getCommentContent()));
+        Comment comment = Comment.builder()
+                .userId(UserUtils.getLoginUser().getUserInfoId())
+                .replyUserId(commentVO.getReplyUserId())
+                .topicId(commentVO.getTopicId())
+                .commentContent(commentVO.getCommentContent())
+                .parentId(commentVO.getParentId())
+                .type(commentVO.getType())
+                //0需审核1通过
+                .isReview(isReview == 1 ? 1 : 0)
+                .build();
+        baseMapper.insert(comment);
+        // TODO 开启邮箱提醒
+        // 判断是否开启邮箱通知,通知用户
+//        if (websiteConfig.getIsEmailNotice().equals(TRUE)) {
+//            CompletableFuture.runAsync(() -> notice(comment));
+//        }
+    }
+
+    @Override
+    public List<ReplyDTO> listRepliesByCommentId(Integer commentId) {
+        // 转换页码查询评论下的回复
+        List<ReplyDTO> replyDTOList = baseMapper.listRepliesByCommentId(PageUtils.getLimitCurrent(), PageUtils.getSize(), commentId);
+        // 查询redis的评论点赞数据
+        Map<String, Object> likeCountMap = redisService.hGetAll(COMMENT_LIKE_COUNT);
+        // 封装点赞数据
+        replyDTOList.forEach(item -> item.setLikeCount((Integer) likeCountMap.get(item.getId().toString())));
+        return replyDTOList;
     }
 }
 

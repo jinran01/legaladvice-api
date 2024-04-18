@@ -34,8 +34,7 @@ import java.util.stream.Collectors;
 
 import static com.fiee.legaladvice.constant.CommonConst.ARTICLE_SET;
 import static com.fiee.legaladvice.constant.CommonConst.FALSE;
-import static com.fiee.legaladvice.constant.RedisPrefixConst.ARTICLE_LIKE_COUNT;
-import static com.fiee.legaladvice.constant.RedisPrefixConst.ARTICLE_VIEWS_COUNT;
+import static com.fiee.legaladvice.constant.RedisPrefixConst.*;
 import static com.fiee.legaladvice.enums.ArticleStatusEnum.DRAFT;
 import static com.fiee.legaladvice.enums.ArticleStatusEnum.PUBLIC;
 
@@ -289,6 +288,24 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 //        return urlList;
         return null;
     }
+
+    @Override
+    public void saveArticleLike(Integer articleId) {
+        // 判断是否点赞
+        String articleLikeKey = ARTICLE_USER_LIKE + UserUtils.getLoginUser().getUserInfoId();
+        if (redisService.sIsMember(articleLikeKey, articleId)) {
+            // 点过赞则删除文章id
+            redisService.sRemove(articleLikeKey, articleId);
+            // 文章点赞量-1
+            redisService.hDecr(ARTICLE_LIKE_COUNT, articleId.toString(), 1L);
+        } else {
+            // 未点赞则增加文章id
+            redisService.sAdd(articleLikeKey, articleId);
+            // 文章点赞量+1
+            redisService.hIncr(ARTICLE_LIKE_COUNT, articleId.toString(), 1L);
+        }
+    }
+
     /**
      * 物理删除文章
      * @param articleIds 文章ids

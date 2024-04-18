@@ -1,5 +1,6 @@
 package com.fiee.legaladvice.config;
 
+import com.fiee.legaladvice.handle.PageableHandlerInterceptor;
 import com.fiee.legaladvice.handle.WebMvcHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(new PageableHandlerInterceptor());
+        registry.addInterceptor(new PageableHandlerInterceptor());
         registry.addInterceptor(getWebSecurityHandler());
     }
 }
