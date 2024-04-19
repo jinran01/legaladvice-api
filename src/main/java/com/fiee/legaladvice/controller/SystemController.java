@@ -35,8 +35,6 @@ public class SystemController {
     private OssUploadUtils ossUploadUtils;
     @Autowired
     private AliProperties aliProperties;
-    @Autowired
-    private RedisService redisService;
 
     @ApiOperation("获取OSSPolicy")
     @GetMapping("/oss/policy")
@@ -55,6 +53,13 @@ public class SystemController {
         return Result.ok();
     }
 
+    @ApiOperation("修改用户邮箱")
+    @PostMapping("/user/email/change")
+    public Result changeUserEmail(@RequestBody Map<String,String> map) {
+        new SystemServiceImpl().changeEmail(map);
+        return Result.ok();
+    }
+
     @ApiOperation("注册用户")
     @PostMapping("/user/register")
     public Result userRegister(@RequestBody Map<String,String> map) {
@@ -68,4 +73,5 @@ public class SystemController {
         new SystemServiceImpl().forgetPass(map);
         return Result.ok();
     }
+
 }

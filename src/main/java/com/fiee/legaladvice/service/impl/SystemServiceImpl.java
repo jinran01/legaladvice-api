@@ -11,6 +11,7 @@ import com.fiee.legaladvice.service.RedisService;
 import com.fiee.legaladvice.service.UserAuthService;
 import com.fiee.legaladvice.service.UserInfoService;
 import com.fiee.legaladvice.service.UserRoleService;
+import com.fiee.legaladvice.utils.UserUtils;
 import org.apache.catalina.User;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
@@ -129,6 +130,29 @@ public class SystemServiceImpl {
         }else {
             userAuth.setPassword(new BCryptPasswordEncoder().encode(map.get("password")));
             userAuthService.saveOrUpdate(userAuth);
+        }
+    }
+
+    /**
+     * 用户修改邮箱
+     * @param map
+     */
+    @Transactional
+    public void changeEmail(Map<String,String> map) {
+        LambdaQueryWrapper<UserAuth> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserAuth::getUsername,map.get("username"));
+        if (Objects.isNull(userAuthService.getOne(wrapper))){
+            UserAuth userAuth = userAuthService.getById(UserUtils.getLoginUser().getId());
+            if (!map.get("code").equals(redisService.get(USER_CODE_KEY+userAuth.getUsername()))){
+                throw new BizException("验证码错误！");
+            }
+            UserInfo userInfo = userInfoService.getById(UserUtils.getLoginUser().getUserInfoId());
+            userAuth.setUsername(map.get("username"));
+            userInfo.setEmail(map.get("username"));
+            userAuthService.saveOrUpdate(userAuth);
+            userInfoService.saveOrUpdate(userInfo);
+        }else {
+            throw new BizException("该邮箱已被注册");
         }
     }
 }

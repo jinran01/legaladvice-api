@@ -1,8 +1,12 @@
 package com.fiee.legaladvice.controller;
 
+import com.fiee.legaladvice.entity.UserInfo;
 import com.fiee.legaladvice.service.RedisService;
+import com.fiee.legaladvice.service.UserInfoService;
+import com.fiee.legaladvice.service.impl.SystemServiceImpl;
 import com.fiee.legaladvice.utils.MakeCodeUtils;
 import com.fiee.legaladvice.utils.Result;
+import com.fiee.legaladvice.utils.UserUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +26,12 @@ import java.util.Objects;
 
 @Api(tags = "登录验证管理")
 @RestController
-@RequestMapping("/")
 public class LoginController {
 
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private UserInfoService userInfoService;
 
     @ApiOperation("获取登录验证码")
     @GetMapping("/getLoginCode/{uuid}")
@@ -47,8 +52,12 @@ public class LoginController {
             return Result.fail("验证码错误或者过期！");
         }
     }
-//    @GetMapping("/session/invalid")
-//    public Result sessionInvalid(){
-//        return Result.fail("session invalid");
-//    }
+
+    @ApiOperation("修改用户信息")
+    @PutMapping("/users/info")
+    public Result updateUserInfo(@RequestBody UserInfo userInfo) {
+        userInfo.setId(UserUtils.getLoginUser().getUserInfoId());
+        userInfoService.updateById(userInfo);
+        return Result.ok();
+    }
 }
