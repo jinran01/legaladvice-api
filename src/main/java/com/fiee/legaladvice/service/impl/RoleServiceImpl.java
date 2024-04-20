@@ -11,6 +11,7 @@ import com.fiee.legaladvice.entity.RoleMenu;
 import com.fiee.legaladvice.entity.RoleResource;
 import com.fiee.legaladvice.entity.UserRole;
 import com.fiee.legaladvice.exception.BizException;
+import com.fiee.legaladvice.handle.FilterInvocationSecurityMetadataSourceImpl;
 import com.fiee.legaladvice.service.RoleMenuService;
 import com.fiee.legaladvice.service.RoleResourceService;
 import com.fiee.legaladvice.service.RoleService;
@@ -43,6 +44,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
     private RoleResourceService roleResourceService;
     @Autowired
     private RoleMenuService roleMenuService;
+    @Autowired
+    private FilterInvocationSecurityMetadataSourceImpl filterInvocationSecurityMetadataSource;
+
     /**
      * 用户角色
      * @return
@@ -169,6 +173,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         if (!flag){
             throw new BizException("出错了！");
         }
+        filterInvocationSecurityMetadataSource.clearDataSource();
         return flag;
     }
 
@@ -192,7 +197,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
         roleMenuService.saveBatch(list);
         return true;
     }
-
+    @Transactional
     @Override
     public boolean updateResources(Map map) {
         Object roleId = map.get("roleId");
@@ -208,11 +213,11 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
             resource.setResourceId((Integer) resourceId);
             list.add(resource);
         }
-//        throw new BizException("出错了");
         roleResourceService.saveBatch(list);
-
+        filterInvocationSecurityMetadataSource.clearDataSource();
         return true;
     }
+
 }
 
 

@@ -1,21 +1,23 @@
 package com.fiee.legaladvice.controller;
 
 import com.fiee.legaladvice.annotation.AccessLimit;
-import com.fiee.legaladvice.properties.AliProperties;
+import com.fiee.legaladvice.properties.AliPhoneProperties;
+import com.fiee.legaladvice.properties.AliUploadProperties;
 import com.fiee.legaladvice.service.RedisService;
+import com.fiee.legaladvice.service.UserInfoService;
 import com.fiee.legaladvice.service.impl.SystemServiceImpl;
-import com.fiee.legaladvice.utils.MakeCodeUtils;
+import com.fiee.legaladvice.utils.AliyunUtils;
 import com.fiee.legaladvice.utils.OssUploadUtils;
 import com.fiee.legaladvice.utils.Result;
 import com.fiee.legaladvice.utils.UserUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.fiee.legaladvice.constant.RedisPrefixConst.USER_CODE_KEY;
 
@@ -34,16 +36,41 @@ public class SystemController {
     @Autowired
     private OssUploadUtils ossUploadUtils;
     @Autowired
-    private AliProperties aliProperties;
-
+    private AliyunUtils aliyunUtils;
+    @Autowired
+    private AliUploadProperties aliUploadProperties;
+    @Autowired
+    private AliPhoneProperties aliPhoneProperties;
+    @Autowired
+    private UserInfoService userInfoService;
+    @Autowired
+    private RedisService redisService;
+    @AccessLimit(count = 5)
     @ApiOperation("获取OSSPolicy")
     @GetMapping("/oss/policy")
     public Result getPolicy(@RequestParam("path") String path) throws UnsupportedEncodingException {
         return Result.ok(ossUploadUtils.getOssPolicy(
-                aliProperties.getEndpoint(),
-                aliProperties.getAccessKeyId(),
-                aliProperties.getAccessKeySecret(),
+                aliUploadProperties.getEndpoint(),
+                aliUploadProperties.getAccessKeyId(),
+                aliUploadProperties.getAccessKeySecret(),
                 path));
+    }
+    @AccessLimit(count = 5)
+    @ApiOperation("获取短信验证码")
+    @GetMapping("/phone/code")
+    public Result getPhoneCode(@RequestParam("phone") String phone){
+        String getPhone = userInfoService.getById(UserUtils.getLoginUser().getUserInfoId()).getPhone();
+        if (!Objects.isNull(getPhone)){
+            phone = getPhone;
+        }
+        String code = aliyunUtils.getPhoneCode(
+                aliPhoneProperties.getAccessKeyId(),
+                aliPhoneProperties.getAccessKeySecret(),
+                aliPhoneProperties.getTemplateCode(),
+                aliPhoneProperties.getSignName(),
+                phone);
+        redisService.set(USER_CODE_KEY+phone,code,5*60);
+        return Result.ok();
     }
     @AccessLimit(count = 5)
     @ApiOperation("获取邮箱验证码")

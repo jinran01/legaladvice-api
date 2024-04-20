@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 @Data
 @Configuration
 @Component
-@ConfigurationProperties("upload.aliyun")
-public class AliProperties {
+@ConfigurationProperties("aliyun.upload")
+public class AliUploadProperties {
     //区域
     private String endpoint;
     //访问id

@@ -60,4 +60,11 @@ public class LoginController {
         userInfoService.updateById(userInfo);
         return Result.ok();
     }
+
+    @ApiOperation("绑定或修改手机号")
+    @PutMapping("/users/phone/update")
+    public Result saveUserPhone(@RequestBody Map<String,String> map) {
+        userInfoService.saveUserPhone(map);
+        return Result.ok();
+    }
 }

@@ -2,6 +2,7 @@ package com.fiee.legaladvice.handle;
 
 
 import com.fiee.legaladvice.dto.ResourceRoleDTO;
+import com.fiee.legaladvice.mapper.RoleMapper;
 import com.fiee.legaladvice.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.ConfigAttribute;
@@ -30,18 +31,21 @@ public class FilterInvocationSecurityMetadataSourceImpl implements FilterInvocat
     private static List<ResourceRoleDTO> resourceRoleList;
 
     @Autowired
-    private RoleService roleService;
+    private RoleMapper roleService;
 
     @PostConstruct
     private void loadDataSource() {
         resourceRoleList = roleService.listResourceRoles();
     }
+    public void clearDataSource() {
+        resourceRoleList = null;
+    }
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
         // 修改接口角色关系后重新加载
-//        if (CollectionUtils.isEmpty(resourceRoleList)) {
-//        this.loadDataSource();
-//        }
+        if (CollectionUtils.isEmpty(resourceRoleList)) {
+            this.loadDataSource();
+        }
         FilterInvocation fi = (FilterInvocation) object;
         // 获取用户请求方式
         String method = fi.getRequest().getMethod();
