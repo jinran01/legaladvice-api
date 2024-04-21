@@ -3,6 +3,7 @@ package com.fiee.legaladvice.service;
 import com.fiee.legaladvice.dto.ArticleBackDTO;
 import com.fiee.legaladvice.dto.ArticleDTO;
 import com.fiee.legaladvice.dto.ArticleHomeDTO;
+import com.fiee.legaladvice.dto.ArticlePreviewListDTO;
 import com.fiee.legaladvice.entity.Article;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.fiee.legaladvice.vo.ArticleVO;
@@ -31,4 +32,6 @@ public interface ArticleService extends IService<Article> {
     List<String> exportArticles(List<Integer> articleIdList);
 
     void saveArticleLike(Integer articleId);
+
+    ArticlePreviewListDTO listArticlesByCondition(ConditionVO condition);
 }

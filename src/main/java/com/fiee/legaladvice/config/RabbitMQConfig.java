@@ -46,4 +46,19 @@ public class RabbitMQConfig {
     public Binding bindingEmailDirect() {
         return BindingBuilder.bind(emailQueue()).to(emailExchange());
     }
+
+    @Bean
+    public Queue phoneQueue() {
+        return new Queue(PHONE_QUEUE, true);
+    }
+
+    @Bean
+    public FanoutExchange phoneExchange() {
+        return new FanoutExchange(PHONE_EXCHANGE, true, false);
+    }
+
+    @Bean
+    public Binding bindingPhoneDirect() {
+        return BindingBuilder.bind(phoneQueue()).to(phoneExchange());
+    }
 }

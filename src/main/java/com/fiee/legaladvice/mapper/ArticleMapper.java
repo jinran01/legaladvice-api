@@ -1,9 +1,6 @@
 package com.fiee.legaladvice.mapper;
 
-import com.fiee.legaladvice.dto.ArticleBackDTO;
-import com.fiee.legaladvice.dto.ArticleDTO;
-import com.fiee.legaladvice.dto.ArticleHomeDTO;
-import com.fiee.legaladvice.dto.ArticleRecommendDTO;
+import com.fiee.legaladvice.dto.*;
 import com.fiee.legaladvice.entity.Article;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fiee.legaladvice.vo.ArticleVO;
@@ -29,6 +26,8 @@ public interface ArticleMapper extends BaseMapper<Article> {
     Integer getCount(@Param("vo") ConditionVO vo);
 
     ArticleDTO getArticleById(Integer id);
+
+    List<ArticlePreviewDTO> listArticlesByCondition(@Param("current") Long current, @Param("size") Long size, @Param("condition") ConditionVO condition);
 }
 
 

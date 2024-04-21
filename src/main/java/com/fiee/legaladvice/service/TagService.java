@@ -1,5 +1,6 @@
 package com.fiee.legaladvice.service;
 
+import com.fiee.legaladvice.dto.TagDTO;
 import com.fiee.legaladvice.entity.Tag;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.fiee.legaladvice.vo.ConditionVO;
@@ -17,4 +18,6 @@ public interface TagService extends IService<Tag> {
     PageResult getTagList(ConditionVO vo);
 
     boolean removeBatch(List<Tag> asList);
+
+    PageResult<TagDTO> listTags();
 }

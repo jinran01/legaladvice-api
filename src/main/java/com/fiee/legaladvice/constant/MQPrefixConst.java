@@ -28,4 +28,14 @@ public class MQPrefixConst {
      */
     public static final String EMAIL_QUEUE = "email_queue";
 
+    /**
+     * phone交换机
+     */
+    public static final String PHONE_EXCHANGE = "phone_exchange";
+
+    /**
+     * 邮件队列
+     */
+    public static final String PHONE_QUEUE = "phone_queue";
+
 }

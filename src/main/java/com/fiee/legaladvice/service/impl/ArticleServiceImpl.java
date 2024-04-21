@@ -16,6 +16,7 @@ import com.fiee.legaladvice.service.*;
 import com.fiee.legaladvice.mapper.ArticleMapper;
 import com.fiee.legaladvice.utils.BeanCopyUtils;
 import com.fiee.legaladvice.utils.CommonUtils;
+import com.fiee.legaladvice.utils.PageUtils;
 import com.fiee.legaladvice.utils.UserUtils;
 import com.fiee.legaladvice.vo.ArticleVO;
 import com.fiee.legaladvice.vo.ConditionVO;
@@ -304,6 +305,22 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             // 文章点赞量+1
             redisService.hIncr(ARTICLE_LIKE_COUNT, articleId.toString(), 1L);
         }
+    }
+
+    @Override
+    public ArticlePreviewListDTO listArticlesByCondition(ConditionVO condition) {
+        // 查询文章
+        List<ArticlePreviewDTO> articlePreviewDTOList = baseMapper.listArticlesByCondition(PageUtils.getLimitCurrent(), PageUtils.getSize(), condition);
+        // 搜索条件对应名(标签或分类名)
+        String name;
+        if (Objects.nonNull(condition.getCategoryId())) {
+            name = categoryService.getOne(new LambdaQueryWrapper<Category>().select(Category::getCategoryName)
+                    .eq(Category::getId, condition.getCategoryId())).getCategoryName();
+        } else {
+            name = tagService.getOne(new LambdaQueryWrapper<Tag>()
+                    .select(Tag::getTagName).eq(Tag::getId, condition.getTagId())).getTagName();
+        }
+        return ArticlePreviewListDTO.builder().articlePreviewDTOList(articlePreviewDTOList).name(name).build();
     }
 
     /**

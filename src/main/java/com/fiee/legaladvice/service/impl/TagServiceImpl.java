@@ -2,6 +2,7 @@ package com.fiee.legaladvice.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fiee.legaladvice.dto.TagDTO;
 import com.fiee.legaladvice.entity.Article;
 import com.fiee.legaladvice.entity.ArticleTag;
 import com.fiee.legaladvice.entity.Category;
@@ -64,6 +65,17 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
             this.removeById(tag);
         }
         return true;
+    }
+
+    @Override
+    public PageResult<TagDTO> listTags() {
+        // 查询标签列表
+        List<Tag> tagList = baseMapper.selectList(null);
+        // 转换DTO
+        List<TagDTO> tagDTOList = BeanCopyUtils.copyList(tagList, TagDTO.class);
+        // 查询标签数量
+        Long count = baseMapper.selectCount(null);
+        return new PageResult<>(tagDTOList, Math.toIntExact(count));
     }
 }
 

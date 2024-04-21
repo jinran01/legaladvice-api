@@ -65,6 +65,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category>
         return true;
     }
 
+    @Override
+    public PageResult<CategoryDTO> listCategories() {
+        return new PageResult<>(baseMapper.listCategoryDTO(), Math.toIntExact(baseMapper.selectCount(null)));
+    }
+
 }
 
 

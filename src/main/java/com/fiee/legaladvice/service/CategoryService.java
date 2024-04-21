@@ -22,5 +22,7 @@ public interface CategoryService extends IService<Category> {
 
     boolean removeBatch(Long[] categories);
 
+    PageResult<CategoryDTO> listCategories();
+
 //    List<CategoryDTO> listCategoryDTO();
 }

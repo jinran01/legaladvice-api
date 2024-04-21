@@ -42,7 +42,6 @@ public class EmailConsumer {
     @RabbitHandler
     public void process(byte[] data) throws MessagingException {
         EmailDTO emailDTO = JSON.parseObject(new String(data), EmailDTO.class);
-
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage,true);
         mimeMessageHelper.setFrom(email);

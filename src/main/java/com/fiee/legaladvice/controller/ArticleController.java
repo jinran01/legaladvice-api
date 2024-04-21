@@ -2,6 +2,7 @@ package com.fiee.legaladvice.controller;
 
 import com.fiee.legaladvice.annotation.OptLog;
 import com.fiee.legaladvice.dto.ArticleDTO;
+import com.fiee.legaladvice.dto.ArticlePreviewListDTO;
 import com.fiee.legaladvice.entity.Article;
 import com.fiee.legaladvice.service.ArticleService;
 import com.fiee.legaladvice.utils.Result;
@@ -97,6 +98,17 @@ public class ArticleController {
         return Result.ok(articleService.getHomeArticles(vo));
     }
 
+    /**
+     * 根据条件查询文章
+     *
+     * @param condition 条件
+     * @return {@link Result<ArticlePreviewListDTO>} 文章列表
+     */
+    @ApiOperation(value = "根据条件查询文章")
+    @GetMapping("/articles/condition")
+    public Result<ArticlePreviewListDTO> listArticlesByCondition(ConditionVO condition) {
+        return Result.ok(articleService.listArticlesByCondition(condition));
+    }
     /**
      * 根据id查看文章
      *
