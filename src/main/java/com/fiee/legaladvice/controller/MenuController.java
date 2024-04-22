@@ -29,6 +29,7 @@ public class MenuController {
     public Result getUserList(String menuName){
         return Result.ok(menuService.getMenuList(menuName));
     }
+
     @OptLog(optType = SAVE_OR_UPDATE)
     @ApiOperation("更新或新增菜单")
     @PostMapping("/menus")

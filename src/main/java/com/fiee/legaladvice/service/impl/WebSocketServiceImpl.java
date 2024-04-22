@@ -7,12 +7,9 @@ import com.fiee.legaladvice.dto.ChatRecordDTO;
 import com.fiee.legaladvice.dto.RecallMessageDTO;
 import com.fiee.legaladvice.dto.WebsocketMessageDTO;
 import com.fiee.legaladvice.entity.ChatRecord;
-import com.fiee.legaladvice.enums.FilePathEnum;
 import com.fiee.legaladvice.mapper.ChatRecordMapper;
-import com.fiee.legaladvice.utils.BeanCopyUtils;
 import com.fiee.legaladvice.utils.HTMLUtils;
 import com.fiee.legaladvice.utils.IpUtils;
-import com.fiee.legaladvice.vo.VoiceVO;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -52,10 +49,6 @@ public class WebSocketServiceImpl {
     private static CopyOnWriteArraySet<WebSocketServiceImpl> webSocketSet = new CopyOnWriteArraySet<>();
 
 
-    //    @Autowired
-//    public void setUploadStrategyContext(UploadStrategyContext uploadStrategyContext) {
-//        WebSocketServiceImpl.uploadStrategyContext = uploadStrategyContext;
-//    }
     @Autowired
     public void setChatRecordDao(ChatRecordMapper chatRecordMapper) {
         WebSocketServiceImpl.chatRecordMapper = chatRecordMapper;
@@ -63,7 +56,6 @@ public class WebSocketServiceImpl {
 
     private static ChatRecordMapper chatRecordMapper;
 
-//    private  UploadStrategyContext uploadStrategyContext;
 
     /**
      * 获取客户端真实ip

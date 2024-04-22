@@ -41,7 +41,7 @@ public interface UserAuthService extends IService<UserAuth> {
      * 下线用户
      * @param userInfoId
      */
-    void removeUser(Integer userInfoId);
+    String removeUser(Integer userInfoId);
 
     /**
      * 修改用户角色

@@ -18,6 +18,7 @@ import com.fiee.legaladvice.service.UserAuthService;
 import com.fiee.legaladvice.mapper.UserAuthMapper;
 import com.fiee.legaladvice.service.UserInfoService;
 import com.fiee.legaladvice.service.UserRoleService;
+import com.fiee.legaladvice.utils.UserUtils;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
 import org.springframework.amqp.core.Message;
@@ -133,17 +134,22 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
      * @return
      */
     @Override
-    public void removeUser(Integer userInfoId) {
-        //获取用户session
-        List<Object> userInfoList =sessionRegistry.getAllPrincipals().stream().
-                filter(item->{
-                    UserDetailDTO userDetailDTO = (UserDetailDTO) item;
-                    return userDetailDTO.getUserInfoId().equals(userInfoId);
-                }).collect(Collectors.toList());
-        List<SessionInformation> allSessions = new ArrayList<>();
-        userInfoList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));
-        // 注销session
-        allSessions.forEach(SessionInformation::expireNow);
+    public String removeUser(Integer userInfoId) {
+        if (UserUtils.getLoginUser().getUserInfoId().equals(userInfoId)){
+            return "咋地?狠起来连自己都不放过?" ;
+        }else {
+            //获取用户session
+            List<Object> userInfoList =sessionRegistry.getAllPrincipals().stream().
+                    filter(item->{
+                        UserDetailDTO userDetailDTO = (UserDetailDTO) item;
+                        return userDetailDTO.getUserInfoId().equals(userInfoId);
+                    }).collect(Collectors.toList());
+            List<SessionInformation> allSessions = new ArrayList<>();
+            userInfoList.forEach(item -> allSessions.addAll(sessionRegistry.getAllSessions(item, false)));
+            // 注销session
+            allSessions.forEach(SessionInformation::expireNow);
+            return "已下线该用户！" ;
+        }
     }
 
 

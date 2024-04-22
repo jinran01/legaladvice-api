@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
 * @author Fiee
@@ -66,7 +67,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu>
     @Override
     public boolean delMenu(Integer id) {
         Menu menu = this.getById(id);
-        if (menu.getParentId() == 0){
+        if (Objects.isNull(menu.getParentId())){
             LambdaQueryWrapper<Menu> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(Menu::getParentId,id);
             long count = this.count(wrapper);

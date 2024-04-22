@@ -35,6 +35,11 @@ public class ChatRecord implements Serializable {
     private Integer userId;
 
     /**
+     * 接收方用户id
+     */
+    private Integer toUserId;
+
+    /**
      * 用户昵称
      */
     private String nickname;

@@ -70,8 +70,8 @@ public class UserAuthController {
     @ApiOperation("下线用户")
     @DeleteMapping("/users/{userInfoId}/online")
     public Result removeUser(@PathVariable Integer userInfoId) {
-        userAuthService.removeUser(userInfoId);
-        return Result.fail("操作成功！");
+        String str = userAuthService.removeUser(userInfoId);
+        return Result.ok(str);
     }
     @OptLog(optType = UPDATE)
     @ApiOperation("更新后台用户头像")
