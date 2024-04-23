@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fiee.legaladvice.mapper.LawyerAuthMapper">
+    <resultMap id="getLawyerListMap" type="com.fiee.legaladvice.entity.LawyerAuth">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userInfoId" column="user_info_id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+        <result property="idCard" column="id_card" jdbcType="VARCHAR"/>
+        <result property="idCardAuth" column="id_card_auth" jdbcType="VARCHAR"/>
+        <result property="qualification" column="qualification" jdbcType="VARCHAR"/>
+        <result property="school" column="school" jdbcType="VARCHAR"/>
+        <result property="major" column="major" jdbcType="VARCHAR"/>
+        <result property="lpc" column="lpc" jdbcType="VARCHAR"/>
+        <result property="lpqc" column="lpqc" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="remarks" column="remarks" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getLawyerList" resultMap="getLawyerListMap">
+        SELECT
+            *
+        FROM
+            tb_lawyer_auth
+        limit #{current},#{size}
+    </select>
+</mapper>

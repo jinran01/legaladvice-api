@@ -230,7 +230,6 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
 
     @Override
     public boolean updateUserInfo(UserInfo userInfo) {
-//        SecurityContextHolder.getContext().setAuthentication();
         return userInfoService.updateById(userInfo);
     }
 }

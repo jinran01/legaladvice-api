@@ -6,73 +6,89 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
- * 
- * @TableName tb_chat_record
- */
-
-
+ * @Author: Fiee
+ * @ClassName: LawyerAuth
+ * @Date: 2024/4/23
+ * @Version: v1.0.0
+ **/
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("tb_chat_record")
-public class ChatRecord implements Serializable {
+@TableName(value ="tb_lawyer_auth")
+public class LawyerAuth implements Serializable {
 
     /**
-     * 主键
+     *id
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 用户id
+     * 用户infoId
      */
-    private Integer userId;
+    private Integer userInfoId;
 
     /**
-     * 接收方用户id
+     * 姓名
      */
-    private Integer toUserId;
+    private String name;
 
     /**
-     * 用户昵称
+     * 手机号
      */
-    private String nickname;
+    private String phone;
 
     /**
-     * 用户头像
+     * 真实头像
      */
     private String avatar;
 
     /**
-     * 聊天内容
+     * 身份证号码
      */
-    private String content;
+    private String idCard;
 
     /**
-     * 类型
+     * 身份证认证
      */
-    private Integer type;
+    private String idCardAuth;
 
     /**
-     * 用户登录ip
+     * 学历
      */
-    private String ipAddress;
+    private String qualification;
 
     /**
-     * ip来源
+     * 学校
      */
-    private String ipSource;
+    private String school;
 
+    /**
+     * 专业
+     */
+    private String major;
+
+    /**
+     * 律师执业证书
+     */
+    private String lpc;
+
+    /**
+     * 法律职业资格证书
+     */
+    private String lpqc;
+
+    /**
+     * 状态(1:通过2:审核中3:未通过)
+     */
+    private Integer status;
     /**
      * 创建时间
      */
@@ -89,4 +105,8 @@ public class ChatRecord implements Serializable {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
+    /**
+     * 用于备注审核通不通过时所填信息
+     */
+    private String remarks;
 }
