@@ -56,6 +56,7 @@ public class Resource implements Serializable {
      */
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**

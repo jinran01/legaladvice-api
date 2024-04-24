@@ -52,8 +52,8 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role>
      * @return
      */
     @Override
-    public List<String> listRolesByUserInfoId(Integer userInfoId) {
-        return baseMapper.listRolesByUserInfoId(userInfoId);
+    public List<String> listRolesByUserAuthId(Integer userAuthId) {
+        return baseMapper.listRolesByUserAuthId(userAuthId);
     }
 
     /**

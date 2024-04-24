@@ -13,4 +13,6 @@ import com.fiee.legaladvice.vo.PageResult;
  **/
 public interface LawyerAuthService extends IService<LawyerAuth> {
     PageResult<LawyerAuth> getLawyerList(ConditionVO vo);
+
+    boolean updateLawyerAuth(LawyerAuth lawyerAuth);
 }

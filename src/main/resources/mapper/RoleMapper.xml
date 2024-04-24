@@ -33,7 +33,7 @@
         </collection>
     </resultMap>
 
-    <select id="listRolesByUserInfoId" resultType="java.lang.String">
+    <select id="listRolesByUserAuthId" resultType="java.lang.String">
         SELECT
             role_label
         FROM
@@ -41,7 +41,7 @@
             tb_user_role ur
         WHERE
             r.id = ur.role_id
-          AND ur.user_id = #{userInfoId}
+          AND ur.user_id = #{userAuthId}
     </select>
 
     <select id="listResourceRoles" resultMap="RolePermissionMap">

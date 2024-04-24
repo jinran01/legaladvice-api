@@ -85,7 +85,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 //        UserInfo userInfo = userInfoMapper.selectById(user.getUserInfoId());
         UserInfo userInfo = userInfoService.getById(user.getUserInfoId());
         // 查询账号角色
-        List<String> roleList = roleService.listRolesByUserInfoId(userInfo.getId());
+        List<String> roleList = roleService.listRolesByUserAuthId(user.getId());
         // 查询账号点赞信息
         Set<Object> articleLikeSet = redisService.sMembers(ARTICLE_USER_LIKE + userInfo.getId());
         Set<Object> commentLikeSet = redisService.sMembers(COMMENT_USER_LIKE + userInfo.getId());

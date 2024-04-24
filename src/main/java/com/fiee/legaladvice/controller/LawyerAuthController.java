@@ -28,10 +28,11 @@ public class LawyerAuthController {
     public Result getLawyerList(ConditionVO vo){
         return Result.ok(lawyerAuthService.getLawyerList(vo));
     }
+
     @ApiOperation(value = "后端修改认证状态")
     @PostMapping("/admin/lawyer/status")
     public Result changeAuthStatus(@RequestBody LawyerAuth lawyerAuth){
-        lawyerAuthService.saveOrUpdate(lawyerAuth);
+        lawyerAuthService.updateLawyerAuth(lawyerAuth);
         return Result.ok("更改状态成功");
     }
 }

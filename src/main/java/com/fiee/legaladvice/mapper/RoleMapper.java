@@ -19,7 +19,7 @@ import java.util.List;
 */
 @Mapper
 public interface RoleMapper extends BaseMapper<Role> {
-    List<String> listRolesByUserInfoId(Integer userInfoId);
+    List<String> listRolesByUserAuthId(Integer userAuthId);
 
     /**
      * 查询路由角色列表

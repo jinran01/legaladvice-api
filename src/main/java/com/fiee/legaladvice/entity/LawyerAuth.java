@@ -31,9 +31,9 @@ public class LawyerAuth implements Serializable {
     private Integer id;
 
     /**
-     * 用户infoId
+     * 用户Id
      */
-    private Integer userInfoId;
+    private Integer userAuthId;
 
     /**
      * 姓名

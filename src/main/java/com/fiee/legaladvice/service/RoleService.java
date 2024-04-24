@@ -19,7 +19,7 @@ import java.util.Map;
 
 public interface RoleService extends IService<Role> {
 
-    List<String> listRolesByUserInfoId(Integer userInfoId);
+    List<String> listRolesByUserAuthId(Integer userAuthId);
 
     List<ResourceRoleDTO> listResourceRoles();
 

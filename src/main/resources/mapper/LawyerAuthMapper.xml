@@ -22,9 +22,17 @@
 
     <select id="getLawyerList" resultMap="getLawyerListMap">
         SELECT
-            *
+        *
         FROM
-            tb_lawyer_auth
+        tb_lawyer_auth
+        <where>
+            <if test="vo.keywords != null">
+                name like concat("%",#{vo.keywords},"%")
+            </if>
+            <if test="vo.status != null">
+                and status = #{vo.status}
+            </if>
+        </where>
         limit #{current},#{size}
     </select>
 </mapper>

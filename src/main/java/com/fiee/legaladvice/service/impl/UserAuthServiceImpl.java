@@ -166,7 +166,8 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         LambdaQueryWrapper<UserRole> wrapper = new LambdaQueryWrapper<>();
         //获取userId
         Integer userInfoId = (Integer) map.get("userInfoId");
-        wrapper.eq(UserRole::getUserId,userInfoId);
+        Integer userAuthId = (Integer) map.get("userAuthId");
+        wrapper.eq(UserRole::getUserId,userAuthId);
         userRoleService.remove(wrapper);
 
         //修改角色
@@ -175,7 +176,7 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
         List<UserRole> list = new ArrayList<>();
         for (int id : roleIds) {
             UserRole userRole= new UserRole();
-            userRole.setUserId(userInfoId);
+            userRole.setUserId(userAuthId);
             userRole.setRoleId(id);
             list.add(userRole);
         }
