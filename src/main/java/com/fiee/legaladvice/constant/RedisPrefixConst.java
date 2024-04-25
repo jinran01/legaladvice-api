@@ -19,6 +19,10 @@ public class RedisPrefixConst {
     public static final String USER_CODE_KEY = "code:";
 
     /**
+     * 说说点赞量
+     */
+    public static final String LAWYER_LIKE_COUNT = "lawyer_like_count";
+    /**
      * 博客浏览量
      */
     public static final String BLOG_VIEWS_COUNT = "blog_views_count";

@@ -1,6 +1,7 @@
 package com.fiee.legaladvice.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.fiee.legaladvice.dto.LawyerAuthDTO;
 import com.fiee.legaladvice.entity.LawyerAuth;
 import com.fiee.legaladvice.vo.ConditionVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -19,4 +20,6 @@ import java.util.List;
 public interface LawyerAuthMapper extends BaseMapper<LawyerAuth> {
 
     List<LawyerAuth> getLawyerList(@Param("vo") ConditionVO vo, @Param("current") Long current, @Param("size") Long size);
+    List<LawyerAuthDTO> getHomeLawyerList(@Param("vo") ConditionVO vo, @Param("current") Long current, @Param("size") Long size);
+
 }

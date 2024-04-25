@@ -5,7 +5,7 @@
 <mapper namespace="com.fiee.legaladvice.mapper.LawyerAuthMapper">
     <resultMap id="getLawyerListMap" type="com.fiee.legaladvice.entity.LawyerAuth">
         <id property="id" column="id" jdbcType="INTEGER"/>
-        <result property="userInfoId" column="user_info_id" jdbcType="INTEGER"/>
+        <result property="userAuthId" column="user_auth_id" jdbcType="INTEGER"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="phone" column="phone" jdbcType="VARCHAR"/>
         <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
@@ -20,6 +20,18 @@
         <result property="remarks" column="remarks" jdbcType="VARCHAR"/>
     </resultMap>
 
+    <resultMap id="getHomeLawyerListMap" type="com.fiee.legaladvice.dto.LawyerAuthDTO">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userAuthId" column="user_auth_id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+        <result property="qualification" column="qualification" jdbcType="VARCHAR"/>
+        <result property="school" column="school" jdbcType="VARCHAR"/>
+        <result property="major" column="major" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+    </resultMap>
+
     <select id="getLawyerList" resultMap="getLawyerListMap">
         SELECT
         *
@@ -32,6 +44,22 @@
             <if test="vo.status != null">
                 and status = #{vo.status}
             </if>
+        </where>
+        limit #{current},#{size}
+    </select>
+    <select id="getHomeLawyerList" resultMap="getHomeLawyerListMap">
+        SELECT
+        id,user_auth_id,name,phone,avatar,qualification,school,major,status
+        FROM
+        tb_lawyer_auth
+        <where>
+            <if test="vo.keywords != null">
+                name like concat("%",#{vo.keywords},"%")
+            </if>
+            <if test="vo.status != null">
+                and status = #{vo.status}
+            </if>
+            and status=1
         </where>
         limit #{current},#{size}
     </select>

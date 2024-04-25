@@ -109,4 +109,10 @@ public class LawyerAuth implements Serializable {
      * 用于备注审核通不通过时所填信息
      */
     private String remarks;
+
+    /**
+     * 点赞数量
+     */
+    @TableField(exist = false)
+    private Double likeCount;
 }

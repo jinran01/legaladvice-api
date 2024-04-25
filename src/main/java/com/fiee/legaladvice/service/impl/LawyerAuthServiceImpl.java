@@ -1,17 +1,23 @@
 package com.fiee.legaladvice.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fiee.legaladvice.dto.LawyerAuthDTO;
 import com.fiee.legaladvice.entity.LawyerAuth;
 import com.fiee.legaladvice.entity.UserRole;
 import com.fiee.legaladvice.mapper.LawyerAuthMapper;
 import com.fiee.legaladvice.service.LawyerAuthService;
+import com.fiee.legaladvice.service.RedisService;
 import com.fiee.legaladvice.service.UserRoleService;
+import com.fiee.legaladvice.utils.UserUtils;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.fiee.legaladvice.constant.RedisPrefixConst.LAWYER_LIKE_COUNT;
 
 /**
  * @Author: Fiee
@@ -24,6 +30,8 @@ public class LawyerAuthServiceImpl extends ServiceImpl<LawyerAuthMapper, LawyerA
         implements LawyerAuthService {
     @Autowired
     private UserRoleService userRoleService;
+    @Autowired
+    private RedisService redisService;
     @Override
     public PageResult<LawyerAuth> getLawyerList(ConditionVO vo) {
         List<LawyerAuth> list = baseMapper.getLawyerList(vo, (vo.getCurrent() - 1) * vo.getSize(), vo.getSize());
@@ -53,5 +61,27 @@ public class LawyerAuthServiceImpl extends ServiceImpl<LawyerAuthMapper, LawyerA
             flag = true;
         }
         return flag;
+    }
+
+    /**
+     * 新增认证或者更新认证
+     * @param lawyerAuth
+     */
+    @Override
+    public void savaOrUpdateAuth(LawyerAuth lawyerAuth) {
+        Integer id = UserUtils.getLoginUser().getId();
+        lawyerAuth.setUserAuthId(id);
+        this.saveOrUpdate(lawyerAuth);
+    }
+
+    @Override
+    public PageResult<LawyerAuthDTO> getHomeLawyerList(ConditionVO vo) {
+        List<LawyerAuthDTO> list = baseMapper.getHomeLawyerList(vo, (vo.getCurrent() - 1) * vo.getSize(), vo.getSize());
+        List<LawyerAuthDTO> collect = list.stream().map(item -> {
+            item.setLikeCount(redisService.zScore(LAWYER_LIKE_COUNT, item.getUserAuthId()));
+            return item;
+        }).collect(Collectors.toList());
+        Integer count = Math.toIntExact(this.count());
+        return new PageResult<>(collect,count);
     }
 }
