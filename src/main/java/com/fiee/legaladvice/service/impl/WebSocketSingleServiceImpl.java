@@ -33,7 +33,7 @@ import static com.fiee.legaladvice.enums.ChatTypeEnum.*;
  **/
 @Data
 @Service
-@ServerEndpoint(value = "/websocket/single/{userInfoId}", configurator = WebSocketServiceImpl.ChatConfigurator.class)
+@ServerEndpoint(value = "/websocket/single/{userId}", configurator = WebSocketServiceImpl.ChatConfigurator.class)
 public class WebSocketSingleServiceImpl {
     /**
      * 用户session
@@ -64,10 +64,10 @@ public class WebSocketSingleServiceImpl {
     }
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("userInfoId") String userInfoId) throws IOException {
+    public void onOpen(Session session, @PathParam("userId") String userId) throws IOException {
         // 加入连接
         this.session = session;
-        webSocketSet.put(userInfoId,this);
+        webSocketSet.put(userId,this);
         updateOnlineCount();
     }
 
@@ -79,12 +79,9 @@ public class WebSocketSingleServiceImpl {
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
         WebsocketMessageDTO messageDTO = JSON.parseObject(message, WebsocketMessageDTO.class);
-        System.out.println(messageDTO);
-//        String sendToUser = (String) message.get("sendToUser");
         ChatRecord chatRecord = JSON.parseObject(JSON.toJSONString(messageDTO.getData()), ChatRecord.class);
-        System.out.println(chatRecord);
-        webSocketSet.get(chatRecord.getToUserId().toString()).getSession().getBasicRemote().sendText("hhhhh");
-//        webSocketSet.get(chatRecord.getToUserId()).getSession().getBasicRemote().sendText("hhhh");
+
+        webSocketSet.get(chatRecord.getToUserId().toString()).getSession().getBasicRemote().sendText(JSON.toJSONString(chatRecord));
 
     }
 
