@@ -59,4 +59,10 @@ public class LawyerAuthController {
     public Result getHomeLawyerList(ConditionVO vo){
         return Result.ok(lawyerAuthService.getHomeLawyerList(vo));
     }
+
+    @ApiOperation(value = "获取聊天对象列表")
+    @GetMapping("/chat/user/list")
+    public Result getChatUserList(){
+        return Result.ok(lawyerAuthService.getChatUserList());
+    }
 }

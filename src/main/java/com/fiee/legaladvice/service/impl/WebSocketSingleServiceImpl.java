@@ -1,24 +1,23 @@
 package com.fiee.legaladvice.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.fiee.legaladvice.dto.ChatRecordDTO;
-import com.fiee.legaladvice.dto.RecallMessageDTO;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fiee.legaladvice.dto.HistoryRecordDTO;
 import com.fiee.legaladvice.dto.WebsocketMessageDTO;
 import com.fiee.legaladvice.entity.ChatRecord;
+import com.fiee.legaladvice.mapper.ChatRecordMapper;
 import com.fiee.legaladvice.utils.HTMLUtils;
-import com.fiee.legaladvice.utils.UserUtils;
 import lombok.Data;
-import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.PongMessage;
 
 import javax.websocket.*;
-import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,23 +44,27 @@ public class WebSocketSingleServiceImpl {
      */
     private static ConcurrentHashMap<String,WebSocketSingleServiceImpl> webSocketSet = new ConcurrentHashMap<>();
 
+    @Autowired
+    public void setChatRecordDao(ChatRecordMapper chatRecordMapper) {
+        WebSocketSingleServiceImpl.chatRecordMapper = chatRecordMapper;
+    }
+    static ChatRecordMapper chatRecordMapper;
     /**
      * 获取客户端真实ip
      */
-    public static class ChatConfigurator extends ServerEndpointConfig.Configurator {
-
-        public static String HEADER_NAME = "X-Real-IP";
-
-        @Override
-        public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
-            try {
-                String firstFoundHeader = request.getHeaders().get(HEADER_NAME.toLowerCase()).get(0);
-                sec.getUserProperties().put(HEADER_NAME, firstFoundHeader);
-            } catch (Exception e) {
-                sec.getUserProperties().put(HEADER_NAME, "未知ip");
-            }
-        }
-    }
+//    public static class ChatConfigurator extends ServerEndpointConfig.Configurator {
+//        public static String HEADER_NAME = "X-Real-IP";
+//
+//        @Override
+//        public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
+//            try {
+//                String firstFoundHeader = request.getHeaders().get(HEADER_NAME.toLowerCase()).get(0);
+//                sec.getUserProperties().put(HEADER_NAME, firstFoundHeader);
+//            } catch (Exception e) {
+//                sec.getUserProperties().put(HEADER_NAME, "未知ip");
+//            }
+//        }
+//    }
 
     @OnOpen
     public void onOpen(Session session, @PathParam("userId") String userId) throws IOException {
@@ -79,12 +82,45 @@ public class WebSocketSingleServiceImpl {
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
         WebsocketMessageDTO messageDTO = JSON.parseObject(message, WebsocketMessageDTO.class);
-        ChatRecord chatRecord = JSON.parseObject(JSON.toJSONString(messageDTO.getData()), ChatRecord.class);
-
-        webSocketSet.get(chatRecord.getToUserId().toString()).getSession().getBasicRemote().sendText(JSON.toJSONString(chatRecord));
+        switch (Objects.requireNonNull(getChatType(messageDTO.getType()))){
+            case SEND_MESSAGE:
+                ChatRecord chatRecord = JSON.parseObject(JSON.toJSONString(messageDTO.getData()), ChatRecord.class);
+                // 过滤html标签
+                chatRecord.setContent(HTMLUtils.filter(chatRecord.getContent()));
+                chatRecord.setType(3);
+                chatRecordMapper.insert(chatRecord);
+                webSocketSet.get(chatRecord.getToUserId().toString())
+                        .getSession().getBasicRemote().sendText(JSON.toJSONString(chatRecord));
+                break;
+            case HISTORY_RECORD:
+                HistoryRecordDTO historyRecordDTO = JSON.parseObject(JSON.toJSONString(messageDTO.getData()), HistoryRecordDTO.class);
+                LambdaQueryWrapper<ChatRecord> wrapper = new LambdaQueryWrapper<>();
+                wrapper.eq(ChatRecord::getUserId,historyRecordDTO.getUserId())
+                        .eq(ChatRecord::getToUserId,historyRecordDTO.getToUserId())
+                        .or()
+                        .eq(ChatRecord::getUserId,historyRecordDTO.getToUserId())
+                        .eq(ChatRecord::getToUserId,historyRecordDTO.getUserId());
+                List<ChatRecord> chatRecordList = chatRecordMapper.selectList(wrapper);
+                WebsocketMessageDTO websocketMessageDTO =
+                        WebsocketMessageDTO.builder()
+                                .type(HISTORY_RECORD.getType())
+                                .data(chatRecordList)
+                                .build();
+                this.getSession().getBasicRemote().sendText(JSON.toJSONString(websocketMessageDTO));
+                break;
+        }
 
     }
 
+    /**
+     * 连接关闭调用的方法
+     */
+    @OnClose
+    public void onClose(@PathParam("userId") String userId) throws IOException {
+        // 更新在线人数
+        webSocketSet.remove(userId);
+        updateOnlineCount();
+    }
     /**
      * 更新在线人数
      *

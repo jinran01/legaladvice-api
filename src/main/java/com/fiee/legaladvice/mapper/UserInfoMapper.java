@@ -2,8 +2,11 @@ package com.fiee.legaladvice.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.fiee.legaladvice.dto.ConsultUserDTO;
 import com.fiee.legaladvice.entity.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
 * @author Fiee
@@ -13,7 +16,7 @@ import org.apache.ibatis.annotations.Mapper;
 */
 @Mapper
 public interface UserInfoMapper extends BaseMapper<UserInfo> {
-
+    List<ConsultUserDTO> getConsultUserList();
 }
 
 

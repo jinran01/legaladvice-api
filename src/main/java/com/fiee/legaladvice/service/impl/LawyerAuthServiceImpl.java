@@ -1,20 +1,31 @@
 package com.fiee.legaladvice.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fiee.legaladvice.dto.ConsultUserDTO;
 import com.fiee.legaladvice.dto.LawyerAuthDTO;
+import com.fiee.legaladvice.entity.ChatRecord;
 import com.fiee.legaladvice.entity.LawyerAuth;
 import com.fiee.legaladvice.entity.UserRole;
+import com.fiee.legaladvice.mapper.ChatRecordMapper;
 import com.fiee.legaladvice.mapper.LawyerAuthMapper;
+import com.fiee.legaladvice.mapper.UserInfoMapper;
+import com.fiee.legaladvice.service.ChatRecordService;
 import com.fiee.legaladvice.service.LawyerAuthService;
 import com.fiee.legaladvice.service.RedisService;
 import com.fiee.legaladvice.service.UserRoleService;
 import com.fiee.legaladvice.utils.UserUtils;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.fiee.legaladvice.constant.RedisPrefixConst.LAWYER_LIKE_COUNT;
@@ -30,6 +41,10 @@ public class LawyerAuthServiceImpl extends ServiceImpl<LawyerAuthMapper, LawyerA
         implements LawyerAuthService {
     @Autowired
     private UserRoleService userRoleService;
+    @Autowired
+    private UserInfoMapper userInfoMapper;
+    @Autowired
+    private ChatRecordMapper chatRecordMapper;
     @Autowired
     private RedisService redisService;
     @Override
@@ -83,5 +98,24 @@ public class LawyerAuthServiceImpl extends ServiceImpl<LawyerAuthMapper, LawyerA
         }).collect(Collectors.toList());
         Integer count = Math.toIntExact(this.count());
         return new PageResult<>(collect,count);
+    }
+
+    @Override
+    public List<ConsultUserDTO> getChatUserList() {
+        Integer userId = UserUtils.getLoginUser().getId();
+        QueryWrapper<ChatRecord> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id",userId).select("to_user_id");
+        List<ChatRecord> toUserIds = chatRecordMapper.selectList(queryWrapper);
+        //获取到所有的toUserIds
+        Set<Integer> collect = toUserIds.stream().map(item ->item.getToUserId()).collect(Collectors.toSet());
+        //获取对应的用户信息
+        List<ConsultUserDTO> userList = userInfoMapper.getConsultUserList();
+        List<ConsultUserDTO> consultUserDTOList = new ArrayList<>();
+        for (ConsultUserDTO consultUserDTO:userList) {
+            if (collect.contains(consultUserDTO.getUserAuthId())) {
+                consultUserDTOList.add(consultUserDTO);
+            }
+        }
+        return consultUserDTOList;
     }
 }
