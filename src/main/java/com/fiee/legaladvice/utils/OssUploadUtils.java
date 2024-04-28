@@ -1,6 +1,8 @@
 package com.fiee.legaladvice.utils;
 
+import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.MatchMode;
 import com.aliyun.oss.model.PolicyConditions;
@@ -26,7 +28,7 @@ public class OssUploadUtils {
         OSSClient ossClient = new OSSClient(endpoint,accessKeyId,accessKeySecret);
         String host = "https://" + "legaladvice" + "." + endpoint;
         Map<String, String> respMap = new LinkedHashMap<>();
-        long expireTime = 30;
+        long expireTime = 60;
         long expireEndTime = System.currentTimeMillis() + expireTime * 1000;
         Date expiration = new Date(expireEndTime);
 
@@ -46,4 +48,5 @@ public class OssUploadUtils {
         ossClient.shutdown();
         return respMap;
     }
+
 }

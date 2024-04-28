@@ -28,4 +28,8 @@ public class ConsultUserDTO {
      * 聊天用户昵称
      */
     private String nickname;
+    /**
+     * 聊天用户姓名
+     */
+    private String name;
 }

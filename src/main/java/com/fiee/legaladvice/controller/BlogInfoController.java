@@ -4,12 +4,16 @@ import com.fiee.legaladvice.dto.BlogBackInfoDTO;
 import com.fiee.legaladvice.dto.BlogHomeInfoDTO;
 import com.fiee.legaladvice.service.BlogInfoService;
 import com.fiee.legaladvice.service.WebsiteConfigService;
+import com.fiee.legaladvice.service.impl.WebSocketServiceImpl;
 import com.fiee.legaladvice.utils.Result;
+import com.fiee.legaladvice.vo.VoiceVO;
 import com.fiee.legaladvice.vo.WebsiteConfigVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 /**
  * @Author: Fiee
@@ -25,6 +29,9 @@ public class BlogInfoController {
     private BlogInfoService blogInfoService;
     @Autowired
     private WebsiteConfigService websiteConfigService;
+
+    @Autowired
+    private WebSocketServiceImpl webSocketService;
 
     @ApiOperation(value = "查看网站前台信息")
     @GetMapping("/")
@@ -53,6 +60,18 @@ public class BlogInfoController {
     @PostMapping("/admin/website/config")
     public Result saveWebsiteConfig(@RequestBody WebsiteConfigVO vo){
         websiteConfigService.saveWebsiteConfig(vo);
+        return Result.ok();
+    }
+    /**
+     * 保存语音信息
+     *
+     * @param voiceVO 语音信息
+     * @return {@link Result<String>} 语音地址
+     */
+    @ApiOperation(value = "上传语音")
+    @PostMapping("/voice")
+    public Result<String> sendVoice(VoiceVO voiceVO) throws IOException {
+        webSocketService.sendVoice(voiceVO);
         return Result.ok();
     }
 }

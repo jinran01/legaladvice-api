@@ -17,9 +17,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.fiee.legaladvice.enums.ChatTypeEnum.*;
@@ -42,13 +40,15 @@ public class WebSocketSingleServiceImpl {
     /**
      * 用户session集合
      */
-    private static ConcurrentHashMap<String,WebSocketSingleServiceImpl> webSocketSet = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, WebSocketSingleServiceImpl> webSocketSet = new ConcurrentHashMap<>();
 
     @Autowired
-    public void setChatRecordDao(ChatRecordMapper chatRecordMapper) {
+    public void setChatRecordMapper(ChatRecordMapper chatRecordMapper) {
         WebSocketSingleServiceImpl.chatRecordMapper = chatRecordMapper;
     }
+
     static ChatRecordMapper chatRecordMapper;
+
     /**
      * 获取客户端真实ip
      */
@@ -65,12 +65,11 @@ public class WebSocketSingleServiceImpl {
 //            }
 //        }
 //    }
-
     @OnOpen
     public void onOpen(Session session, @PathParam("userId") String userId) throws IOException {
         // 加入连接
         this.session = session;
-        webSocketSet.put(userId,this);
+        webSocketSet.put(userId, this);
         updateOnlineCount();
     }
 
@@ -82,32 +81,37 @@ public class WebSocketSingleServiceImpl {
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
         WebsocketMessageDTO messageDTO = JSON.parseObject(message, WebsocketMessageDTO.class);
-        switch (Objects.requireNonNull(getChatType(messageDTO.getType()))){
+        switch (Objects.requireNonNull(getChatType(messageDTO.getType()))) {
             case SEND_MESSAGE:
                 ChatRecord chatRecord = JSON.parseObject(JSON.toJSONString(messageDTO.getData()), ChatRecord.class);
                 // 过滤html标签
                 chatRecord.setContent(HTMLUtils.filter(chatRecord.getContent()));
                 chatRecord.setType(3);
                 chatRecordMapper.insert(chatRecord);
+                messageDTO.setData(chatRecord);
                 webSocketSet.get(chatRecord.getToUserId().toString())
-                        .getSession().getBasicRemote().sendText(JSON.toJSONString(chatRecord));
+                        .getSession().getBasicRemote().sendText(JSON.toJSONString(messageDTO));
                 break;
             case HISTORY_RECORD:
                 HistoryRecordDTO historyRecordDTO = JSON.parseObject(JSON.toJSONString(messageDTO.getData()), HistoryRecordDTO.class);
                 LambdaQueryWrapper<ChatRecord> wrapper = new LambdaQueryWrapper<>();
-                wrapper.eq(ChatRecord::getUserId,historyRecordDTO.getUserId())
-                        .eq(ChatRecord::getToUserId,historyRecordDTO.getToUserId())
+                wrapper.eq(ChatRecord::getUserId, historyRecordDTO.getUserId())
+                        .eq(ChatRecord::getToUserId, historyRecordDTO.getToUserId())
                         .or()
-                        .eq(ChatRecord::getUserId,historyRecordDTO.getToUserId())
-                        .eq(ChatRecord::getToUserId,historyRecordDTO.getUserId());
+                        .eq(ChatRecord::getUserId, historyRecordDTO.getToUserId())
+                        .eq(ChatRecord::getToUserId, historyRecordDTO.getUserId());
                 List<ChatRecord> chatRecordList = chatRecordMapper.selectList(wrapper);
-                WebsocketMessageDTO websocketMessageDTO =
-                        WebsocketMessageDTO.builder()
-                                .type(HISTORY_RECORD.getType())
-                                .data(chatRecordList)
-                                .build();
-                this.getSession().getBasicRemote().sendText(JSON.toJSONString(websocketMessageDTO));
+                messageDTO.setData(chatRecordList);
+                this.getSession().getBasicRemote().sendText(JSON.toJSONString(messageDTO));
                 break;
+            case HEART_BEAT:
+                ArrayList<String> list = new ArrayList<>();
+                for (String userId: webSocketSet.keySet()) {
+                    list.add(userId);
+                }
+                System.out.println();
+                messageDTO.setData(list);
+                session.getBasicRemote().sendText(JSON.toJSONString(messageDTO));
         }
 
     }
@@ -121,6 +125,7 @@ public class WebSocketSingleServiceImpl {
         webSocketSet.remove(userId);
         updateOnlineCount();
     }
+
     /**
      * 更新在线人数
      *
@@ -131,4 +136,5 @@ public class WebSocketSingleServiceImpl {
         // 获取当前在线人数
         System.out.println("现在人数为:" + webSocketSet.size());
     }
+
 }

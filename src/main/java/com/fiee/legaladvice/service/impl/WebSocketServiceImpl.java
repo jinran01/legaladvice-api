@@ -2,14 +2,22 @@ package com.fiee.legaladvice.service.impl;
 
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.model.CannedAccessControlList;
+import com.aliyun.oss.model.ObjectMetadata;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fiee.legaladvice.dto.ChatRecordDTO;
 import com.fiee.legaladvice.dto.RecallMessageDTO;
 import com.fiee.legaladvice.dto.WebsocketMessageDTO;
 import com.fiee.legaladvice.entity.ChatRecord;
+import com.fiee.legaladvice.enums.FilePathEnum;
 import com.fiee.legaladvice.mapper.ChatRecordMapper;
+import com.fiee.legaladvice.utils.BeanCopyUtils;
 import com.fiee.legaladvice.utils.HTMLUtils;
 import com.fiee.legaladvice.utils.IpUtils;
+import com.fiee.legaladvice.utils.OssUploadUtils;
+import com.fiee.legaladvice.vo.VoiceVO;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -20,9 +28,11 @@ import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import static com.fiee.legaladvice.enums.ChatTypeEnum.*;
@@ -152,7 +162,7 @@ public class WebSocketServiceImpl {
     private ChatRecordDTO listChartRecords(EndpointConfig endpointConfig) {
         // 获取聊天历史记录
         List<ChatRecord> chatRecordList = chatRecordMapper.selectList(new LambdaQueryWrapper<ChatRecord>()
-                .ge(ChatRecord::getCreateTime, DateUtil.offsetHour(new Date(), -12)));
+                .ge(ChatRecord::getCreateTime, DateUtil.offsetHour(new Date(), -12)).eq(ChatRecord::getToUserId,null));
         // 获取当前用户ip
         String ipAddress = endpointConfig.getUserProperties().get(ChatConfigurator.HEADER_NAME).toString();
         return ChatRecordDTO.builder()
@@ -183,25 +193,34 @@ public class WebSocketServiceImpl {
      *
      * @param voiceVO 语音路径
      */
-//    public void sendVoice(VoiceVO voiceVO) {
-//        // 上传语音文件
-//        String content = uploadStrategyContext.executeUploadStrategy(voiceVO.getFile(), FilePathEnum.VOICE.getPath());
-//        voiceVO.setContent(content);
-//        // 保存记录
-//        ChatRecord chatRecord = BeanCopyUtils.copyObject(voiceVO, ChatRecord.class);
-//        chatRecordMapper.insert(chatRecord);
-//        // 发送消息
-//        WebsocketMessageDTO messageDTO = WebsocketMessageDTO.builder()
-//                .type(VOICE_MESSAGE.getType())
-//                .data(chatRecord)
-//                .build();
-//        // 广播消息
-//        try {
-//            broadcastMessage(messageDTO);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    public void sendVoice(VoiceVO voiceVO) throws IOException {
+        //上传语音至oss
+        OSS client = new OssUploadUtils().getOssClient();
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setObjectAcl(CannedAccessControlList.PublicRead);
+        UUID uuid = UUID.randomUUID();
+        String fileName = uuid + ".wav";
+        client.putObject("legaladvice",
+                "voice/"+fileName,
+                voiceVO.getFile().getInputStream(),
+                objectMetadata
+        );
+        voiceVO.setContent("https://legaladvice.oss-cn-beijing.aliyuncs.com/voice/" + fileName);
+        // 保存记录
+        ChatRecord chatRecord = BeanCopyUtils.copyObject(voiceVO, ChatRecord.class);
+        chatRecordMapper.insert(chatRecord);
+        // 发送消息
+        WebsocketMessageDTO messageDTO = WebsocketMessageDTO.builder()
+                .type(VOICE_MESSAGE.getType())
+                .data(chatRecord)
+                .build();
+        // 广播消息
+        try {
+            broadcastMessage(messageDTO);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * 广播消息

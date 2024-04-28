@@ -105,6 +105,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .phone(userInfo.getPhone())
                 .sex(userInfo.getSex())
                 .roleList(roleList)
+                .name(userInfo.getName())
                 .nickname(userInfo.getNickname())
                 .avatar(userInfo.getAvatar())
                 .intro(userInfo.getIntro())

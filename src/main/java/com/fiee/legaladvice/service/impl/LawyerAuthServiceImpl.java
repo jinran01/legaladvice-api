@@ -22,10 +22,7 @@ import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fiee.legaladvice.constant.RedisPrefixConst.LAWYER_LIKE_COUNT;
@@ -47,24 +44,26 @@ public class LawyerAuthServiceImpl extends ServiceImpl<LawyerAuthMapper, LawyerA
     private ChatRecordMapper chatRecordMapper;
     @Autowired
     private RedisService redisService;
+
     @Override
     public PageResult<LawyerAuth> getLawyerList(ConditionVO vo) {
         List<LawyerAuth> list = baseMapper.getLawyerList(vo, (vo.getCurrent() - 1) * vo.getSize(), vo.getSize());
         Integer count = Math.toIntExact(this.count());
-        return new PageResult<>(list,count);
+        return new PageResult<>(list, count);
     }
 
     /**
      * 律师认证审核
+     *
      * @param lawyerAuth
      */
     @Override
     public boolean updateLawyerAuth(LawyerAuth lawyerAuth) {
         boolean flag = false;
         //未通过
-        if (lawyerAuth.getStatus() == 3){
+        if (lawyerAuth.getStatus() == 3) {
             this.saveOrUpdate(lawyerAuth);
-        }else {  //通过
+        } else {  //通过
             //更新状态
             this.saveOrUpdate(lawyerAuth);
             // 更新用户角色
@@ -80,6 +79,7 @@ public class LawyerAuthServiceImpl extends ServiceImpl<LawyerAuthMapper, LawyerA
 
     /**
      * 新增认证或者更新认证
+     *
      * @param lawyerAuth
      */
     @Override
@@ -97,21 +97,27 @@ public class LawyerAuthServiceImpl extends ServiceImpl<LawyerAuthMapper, LawyerA
             return item;
         }).collect(Collectors.toList());
         Integer count = Math.toIntExact(this.count());
-        return new PageResult<>(collect,count);
+        return new PageResult<>(collect, count);
     }
 
     @Override
     public List<ConsultUserDTO> getChatUserList() {
         Integer userId = UserUtils.getLoginUser().getId();
-        QueryWrapper<ChatRecord> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_id",userId).select("to_user_id");
-        List<ChatRecord> toUserIds = chatRecordMapper.selectList(queryWrapper);
+        LambdaQueryWrapper<ChatRecord> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ChatRecord::getUserId,userId);
+        List<ChatRecord> chatRecordList = chatRecordMapper.selectList(wrapper);
+        //TODO  优化与用户对话的用户列表
         //获取到所有的toUserIds
-        Set<Integer> collect = toUserIds.stream().map(item ->item.getToUserId()).collect(Collectors.toSet());
+        Set<Integer> collect = new HashSet<>();
+        for (ChatRecord chatRecord:chatRecordList) {
+            if (Objects.nonNull(chatRecord.getToUserId())){
+                collect.add(chatRecord.getToUserId());
+            }
+        }
         //获取对应的用户信息
         List<ConsultUserDTO> userList = userInfoMapper.getConsultUserList();
         List<ConsultUserDTO> consultUserDTOList = new ArrayList<>();
-        for (ConsultUserDTO consultUserDTO:userList) {
+        for (ConsultUserDTO consultUserDTO : userList) {
             if (collect.contains(consultUserDTO.getUserAuthId())) {
                 consultUserDTOList.add(consultUserDTO);
             }

@@ -46,8 +46,11 @@ public enum FilePathEnum {
     /**
      * 说说图片
      */
-    TALK_IMAGES("talks/","说说图片");
-
+    TALK_IMAGES("talks/","说说图片"),
+    /**
+     * 音频路径
+     */
+    VOICE("voice/", "音频路径");
 
     private String path;
 

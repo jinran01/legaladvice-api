@@ -54,6 +54,11 @@ public class UserInfoDTO {
     private String username;
 
     /**
+     * 用户姓名
+     */
+    private String name;
+
+    /**
      * 用户昵称
      */
     private String nickname;

@@ -75,6 +75,12 @@ public class UserDetailDTO implements UserDetails {
     private String nickname;
 
     /**
+     * 用户姓名
+     */
+    private String name;
+
+
+    /**
      * 用户头像
      */
     private String avatar;
