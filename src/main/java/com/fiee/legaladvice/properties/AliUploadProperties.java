@@ -15,8 +15,10 @@ import org.springframework.stereotype.Component;
 @Data
 @Configuration
 @Component
-@ConfigurationProperties("aliyun.upload")
+@ConfigurationProperties("upload.oss")
 public class AliUploadProperties {
+    //url
+    private String url;
     //区域
     private String endpoint;
     //访问id

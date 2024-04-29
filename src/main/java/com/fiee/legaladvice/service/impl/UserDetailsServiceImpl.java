@@ -82,13 +82,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      */
     public UserDetailDTO convertUserDetail(UserAuth user, HttpServletRequest request) {
         // 查询账号信息
-//        UserInfo userInfo = userInfoMapper.selectById(user.getUserInfoId());
         UserInfo userInfo = userInfoService.getById(user.getUserInfoId());
         // 查询账号角色
         List<String> roleList = roleService.listRolesByUserAuthId(user.getId());
         // 查询账号点赞信息
         Set<Object> articleLikeSet = redisService.sMembers(ARTICLE_USER_LIKE + userInfo.getId());
         Set<Object> commentLikeSet = redisService.sMembers(COMMENT_USER_LIKE + userInfo.getId());
+        Set<Object> lawyerLikeSet = redisService.sMembers(LAWYER_USER_LIKE + userInfo.getId());
 //        Set<Object> talkLikeSet = redisService.sMembers(TALK_USER_LIKE + userInfo.getId());
         // 获取设备信息
         String ipAddress = IpUtils.getIpAddress(request);
@@ -112,7 +112,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .webSite(userInfo.getWebSite())
                 .articleLikeSet(articleLikeSet)
                 .commentLikeSet(commentLikeSet)
-                .talkLikeSet(null)
+                .lawyerLikeSet(lawyerLikeSet)
+//                .talkLikeSet(null)
                 .ipAddress(ipAddress)
                 .ipSource(ipSource)
                 .isDisable(userInfo.getIsDisable())

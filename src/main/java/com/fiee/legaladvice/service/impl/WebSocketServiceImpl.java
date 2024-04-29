@@ -13,6 +13,7 @@ import com.fiee.legaladvice.dto.WebsocketMessageDTO;
 import com.fiee.legaladvice.entity.ChatRecord;
 import com.fiee.legaladvice.enums.FilePathEnum;
 import com.fiee.legaladvice.mapper.ChatRecordMapper;
+import com.fiee.legaladvice.strategy.context.UploadStrategyContext;
 import com.fiee.legaladvice.utils.BeanCopyUtils;
 import com.fiee.legaladvice.utils.HTMLUtils;
 import com.fiee.legaladvice.utils.IpUtils;
@@ -53,6 +54,12 @@ public class WebSocketServiceImpl {
      */
     private Session session;
 
+    private static UploadStrategyContext uploadStrategyContext;
+
+    @Autowired
+    public void setUploadStrategyContext(UploadStrategyContext uploadStrategyContext) {
+        WebSocketServiceImpl.uploadStrategyContext = uploadStrategyContext;
+    }
     /**
      * 用户session集合
      */
@@ -162,7 +169,8 @@ public class WebSocketServiceImpl {
     private ChatRecordDTO listChartRecords(EndpointConfig endpointConfig) {
         // 获取聊天历史记录
         List<ChatRecord> chatRecordList = chatRecordMapper.selectList(new LambdaQueryWrapper<ChatRecord>()
-                .ge(ChatRecord::getCreateTime, DateUtil.offsetHour(new Date(), -12)).eq(ChatRecord::getToUserId,null));
+                .ge(ChatRecord::getCreateTime, DateUtil.offsetHour(new Date(), -12))
+                .isNull(true,ChatRecord::getToUserId));
         // 获取当前用户ip
         String ipAddress = endpointConfig.getUserProperties().get(ChatConfigurator.HEADER_NAME).toString();
         return ChatRecordDTO.builder()
@@ -194,18 +202,9 @@ public class WebSocketServiceImpl {
      * @param voiceVO 语音路径
      */
     public void sendVoice(VoiceVO voiceVO) throws IOException {
-        //上传语音至oss
-        OSS client = new OssUploadUtils().getOssClient();
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setObjectAcl(CannedAccessControlList.PublicRead);
-        UUID uuid = UUID.randomUUID();
-        String fileName = uuid + ".wav";
-        client.putObject("legaladvice",
-                "voice/"+fileName,
-                voiceVO.getFile().getInputStream(),
-                objectMetadata
-        );
-        voiceVO.setContent("https://legaladvice.oss-cn-beijing.aliyuncs.com/voice/" + fileName);
+        // 上传语音文件
+        String content = uploadStrategyContext.executeUploadStrategy(voiceVO.getFile(), FilePathEnum.VOICE.getPath());
+        voiceVO.setContent(content);
         // 保存记录
         ChatRecord chatRecord = BeanCopyUtils.copyObject(voiceVO, ChatRecord.class);
         chatRecordMapper.insert(chatRecord);

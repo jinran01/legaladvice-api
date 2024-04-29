@@ -14,8 +14,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.websocket.*;
+import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,19 +54,20 @@ public class WebSocketSingleServiceImpl {
     /**
      * 获取客户端真实ip
      */
-//    public static class ChatConfigurator extends ServerEndpointConfig.Configurator {
-//        public static String HEADER_NAME = "X-Real-IP";
-//
-//        @Override
-//        public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
-//            try {
-//                String firstFoundHeader = request.getHeaders().get(HEADER_NAME.toLowerCase()).get(0);
-//                sec.getUserProperties().put(HEADER_NAME, firstFoundHeader);
-//            } catch (Exception e) {
-//                sec.getUserProperties().put(HEADER_NAME, "未知ip");
-//            }
-//        }
-//    }
+    public static class ChatConfigurator extends ServerEndpointConfig.Configurator {
+        public static String HEADER_NAME = "X-Real-IP";
+
+        @Override
+        public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
+            try {
+                String firstFoundHeader = request.getHeaders().get(HEADER_NAME.toLowerCase()).get(0);
+                sec.getUserProperties().put(HEADER_NAME, firstFoundHeader);
+            } catch (Exception e) {
+                sec.getUserProperties().put(HEADER_NAME, "未知ip");
+            }
+        }
+    }
+
     @OnOpen
     public void onOpen(Session session, @PathParam("userId") String userId) throws IOException {
         // 加入连接
@@ -100,6 +103,7 @@ public class WebSocketSingleServiceImpl {
                         .or()
                         .eq(ChatRecord::getUserId, historyRecordDTO.getToUserId())
                         .eq(ChatRecord::getToUserId, historyRecordDTO.getUserId());
+                wrapper.isNotNull(true,ChatRecord::getToUserId);
                 List<ChatRecord> chatRecordList = chatRecordMapper.selectList(wrapper);
                 messageDTO.setData(chatRecordList);
                 this.getSession().getBasicRemote().sendText(JSON.toJSONString(messageDTO));

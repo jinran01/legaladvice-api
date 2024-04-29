@@ -6,6 +6,8 @@ import com.fiee.legaladvice.properties.AliUploadProperties;
 import com.fiee.legaladvice.service.RedisService;
 import com.fiee.legaladvice.service.UserInfoService;
 import com.fiee.legaladvice.service.impl.SystemServiceImpl;
+import com.fiee.legaladvice.strategy.UploadStrategy;
+import com.fiee.legaladvice.strategy.context.UploadStrategyContext;
 import com.fiee.legaladvice.utils.AliyunUtils;
 import com.fiee.legaladvice.utils.OssUploadUtils;
 import com.fiee.legaladvice.utils.Result;
@@ -45,15 +47,13 @@ public class SystemController {
     private UserInfoService userInfoService;
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private UploadStrategyContext uploadStrategyContext;
     @AccessLimit(count = 5)
     @ApiOperation("获取OSSPolicy")
     @GetMapping("/oss/policy")
     public Result getPolicy(@RequestParam("path") String path) throws UnsupportedEncodingException {
-        return Result.ok(ossUploadUtils.getOssPolicy(
-                aliUploadProperties.getEndpoint(),
-                aliUploadProperties.getAccessKeyId(),
-                aliUploadProperties.getAccessKeySecret(),
-                path));
+        return Result.ok(uploadStrategyContext.executeUploadStrategy(path));
     }
     @AccessLimit(count = 5)
     @ApiOperation("获取短信验证码")

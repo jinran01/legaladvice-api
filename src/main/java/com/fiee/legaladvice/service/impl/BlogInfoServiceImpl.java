@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.fiee.legaladvice.dto.*;
 import com.fiee.legaladvice.entity.Article;
 import com.fiee.legaladvice.entity.IncreateData;
+import com.fiee.legaladvice.entity.LawyerAuth;
 import com.fiee.legaladvice.mapper.CategoryMapper;
 import com.fiee.legaladvice.service.*;
 import com.fiee.legaladvice.utils.BeanCopyUtils;
@@ -58,6 +59,8 @@ public class BlogInfoServiceImpl implements BlogInfoService {
     private  IncreateDataService increateDataService;
     @Autowired
     private  PageService pageService;
+    @Autowired
+    private  LawyerAuthService lawyerAuthService;
     @Override
     public BlogHomeInfoDTO getBlogHomeInfo() {
         // 查询文章数量
@@ -71,6 +74,8 @@ public class BlogInfoServiceImpl implements BlogInfoService {
         // 查询访问量
         Object count = redisService.get(BLOG_VIEWS_COUNT);
         String viewsCount = Optional.ofNullable(count).orElse(0).toString();
+        //查询点赞数Top5的律师
+        List<LawyerTopDTO> lawyerTopList = covertLikeTop(redisService.hGetAll(LAWYER_LIKE_COUNT));
         // 查询网站配置
         WebsiteConfigVO websiteConfig = this.getWebsiteConfig();
         // 查询页面图片
@@ -80,11 +85,30 @@ public class BlogInfoServiceImpl implements BlogInfoService {
                 .articleCount(Math.toIntExact(articleCount))
                 .categoryCount(Math.toIntExact(categoryCount))
                 .tagCount(Math.toIntExact(tagCount))
+                .lawyerLikeTop(lawyerTopList)
                 .viewsCount(viewsCount)
                 .websiteConfig(websiteConfig)
                 .pageList(pageVOList)
                 .build();
     }
+
+    private List<LawyerTopDTO> covertLikeTop(Map<String, Object> likeTopMap){
+        if (likeTopMap.size() > 0 ){
+            List<Map.Entry<String,Object>> list = new ArrayList<>(likeTopMap.entrySet());
+            Collections.sort(list, Comparator.comparingInt(o -> (Integer) o.getValue()));
+            List<Map.Entry<String, Object>> topList = list.subList(0, list.size() <= 5 ? list.size() : 5);
+            List<Integer> userIdList = topList.stream().map(item -> Integer.parseInt(item.getKey())).collect(Collectors.toList());
+            List<LawyerTopDTO> lawyerAuths = BeanCopyUtils.copyList(lawyerAuthService.listByIds(userIdList),LawyerTopDTO.class);
+            return lawyerAuths;
+        }else {
+            LambdaQueryWrapper<LawyerAuth> wrapper = new LambdaQueryWrapper<>();
+            wrapper.last("limit 5");
+            List<LawyerAuth> list = lawyerAuthService.list(wrapper);
+            List<LawyerTopDTO> lawyerAuths = BeanCopyUtils.copyList(list,LawyerTopDTO.class);
+            return lawyerAuths;
+        }
+    }
+
     @Override
     public WebsiteConfigVO getWebsiteConfig() {
         WebsiteConfigVO websiteConfigVO;

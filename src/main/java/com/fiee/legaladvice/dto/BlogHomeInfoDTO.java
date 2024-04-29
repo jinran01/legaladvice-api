@@ -1,5 +1,6 @@
 package com.fiee.legaladvice.dto;
 
+import com.fiee.legaladvice.entity.LawyerAuth;
 import com.fiee.legaladvice.vo.PageVO;
 import com.fiee.legaladvice.vo.WebsiteConfigVO;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,11 @@ public class BlogHomeInfoDTO {
      * 访问量
      */
     private String viewsCount;
+
+    /**
+     * 页面列表
+     */
+    private List<LawyerTopDTO> lawyerLikeTop;
 
     /**
      * 网站配置

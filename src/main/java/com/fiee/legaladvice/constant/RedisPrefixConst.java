@@ -19,7 +19,7 @@ public class RedisPrefixConst {
     public static final String USER_CODE_KEY = "code:";
 
     /**
-     * 说说点赞量
+     * 律师点赞量
      */
     public static final String LAWYER_LIKE_COUNT = "lawyer_like_count";
     /**
@@ -37,10 +37,16 @@ public class RedisPrefixConst {
      */
     public static final String ARTICLE_LIKE_COUNT = "article_like_count";
 
+
     /**
      * 用户点赞文章
      */
     public static final String ARTICLE_USER_LIKE = "article_user_like:";
+
+    /**
+     * 用户点赞律师
+     */
+    public static final String LAWYER_USER_LIKE = "lawyer_user_like:";
 
     /**
      * 说说点赞量

@@ -48,5 +48,4 @@ public class OssUploadUtils {
         ossClient.shutdown();
         return respMap;
     }
-
 }

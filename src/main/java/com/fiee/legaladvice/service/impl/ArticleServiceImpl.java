@@ -293,7 +293,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public void saveArticleLike(Integer articleId) {
         // 判断是否点赞
-        String articleLikeKey = ARTICLE_USER_LIKE + UserUtils.getLoginUser().getUserInfoId();
+        String articleLikeKey = ARTICLE_USER_LIKE + UserUtils.getLoginUser().getId();
         if (redisService.sIsMember(articleLikeKey, articleId)) {
             // 点过赞则删除文章id
             redisService.sRemove(articleLikeKey, articleId);

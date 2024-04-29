@@ -110,7 +110,10 @@ public class UserDetailDTO implements UserDetails {
      * 点赞说说集合
      */
     private Set<Object> talkLikeSet;
-
+    /**
+     * 点赞律师集合
+     */
+    private Set<Object> lawyerLikeSet;
     /**
      * 用户登录ip
      */

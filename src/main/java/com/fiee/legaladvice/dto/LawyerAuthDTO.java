@@ -3,6 +3,7 @@ package com.fiee.legaladvice.dto;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -69,5 +70,5 @@ public class LawyerAuthDTO {
     /**
      * 点赞数量
      */
-    private Double likeCount;
+    private Integer likeCount;
 }

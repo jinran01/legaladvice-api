@@ -100,7 +100,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     @Override
     public void saveCommentLike(Integer commentId) {
         // 判断是否点赞
-        String commentLikeKey = COMMENT_USER_LIKE + UserUtils.getLoginUser().getUserInfoId();
+        String commentLikeKey = COMMENT_USER_LIKE + UserUtils.getLoginUser().getId();
         if (redisService.sIsMember(commentLikeKey, commentId)) {
             // 点过赞则删除评论id
             redisService.sRemove(commentLikeKey, commentId);

@@ -26,4 +26,6 @@ public interface LawyerAuthService extends IService<LawyerAuth> {
     PageResult<LawyerAuthDTO> getHomeLawyerList(ConditionVO vo);
 
     List<ConsultUserDTO> getChatUserList();
+
+    void changeLikeLawyer(Integer id);
 }

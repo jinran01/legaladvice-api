@@ -94,6 +94,11 @@ public class UserInfoDTO {
     private Set<Object> talkLikeSet;
 
     /**
+     * 点赞律师集合
+     */
+    private Set<Object> lawyerLikeSet;
+
+    /**
      * 用户登录ip
      */
     private String ipAddress;

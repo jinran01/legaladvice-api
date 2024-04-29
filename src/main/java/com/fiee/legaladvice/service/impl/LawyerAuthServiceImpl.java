@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fiee.legaladvice.constant.RedisPrefixConst.LAWYER_LIKE_COUNT;
+import static com.fiee.legaladvice.constant.RedisPrefixConst.LAWYER_USER_LIKE;
 
 /**
  * @Author: Fiee
@@ -93,7 +94,8 @@ public class LawyerAuthServiceImpl extends ServiceImpl<LawyerAuthMapper, LawyerA
     public PageResult<LawyerAuthDTO> getHomeLawyerList(ConditionVO vo) {
         List<LawyerAuthDTO> list = baseMapper.getHomeLawyerList(vo, (vo.getCurrent() - 1) * vo.getSize(), vo.getSize());
         List<LawyerAuthDTO> collect = list.stream().map(item -> {
-            item.setLikeCount(redisService.zScore(LAWYER_LIKE_COUNT, item.getUserAuthId()));
+            Integer count = (Integer) redisService.hGet(LAWYER_LIKE_COUNT, item.getUserAuthId().toString());
+            item.setLikeCount(count);
             return item;
         }).collect(Collectors.toList());
         Integer count = Math.toIntExact(this.count());
@@ -123,5 +125,25 @@ public class LawyerAuthServiceImpl extends ServiceImpl<LawyerAuthMapper, LawyerA
             }
         }
         return consultUserDTOList;
+    }
+
+    /**
+     * 点赞律师
+     * @param id
+     */
+    @Override
+    public void changeLikeLawyer(Integer id) {
+        String key = LAWYER_USER_LIKE + UserUtils.getLoginUser().getId();
+        if (redisService.sIsMember(key,id)){
+            //该账号已经点赞则移除相应的律师id
+            redisService.sRemove(key,id);
+            //该律师点赞数-1
+            redisService.hDecr(LAWYER_LIKE_COUNT, id.toString(),1L);
+        }else {
+            //该账号未点赞则增加相应的律师id
+            redisService.sAdd(key,id);
+            //该律师点赞数+1
+            redisService.hIncr(LAWYER_LIKE_COUNT, id.toString(),1L);
+        }
     }
 }

@@ -65,4 +65,11 @@ public class LawyerAuthController {
     public Result getChatUserList(){
         return Result.ok(lawyerAuthService.getChatUserList());
     }
+
+    @ApiOperation(value = "点赞律师")
+    @PostMapping("/lawyer/like")
+    public Result likeLawyer(@RequestParam("id") Integer id){
+        lawyerAuthService.changeLikeLawyer(id);
+        return Result.ok();
+    }
 }
