@@ -204,7 +204,7 @@ public interface RedisService {
     Long hDecr(String key, String hashKey, Long delta);
 
     /**
-     * zset添加分数
+     * zset增加分数
      *
      * @param key   关键
      * @param value 价值
@@ -232,6 +232,16 @@ public interface RedisService {
      * @return {@link Map<Object, Double>}
      */
     Map<Object, Double> zReverseRangeWithScore(String key, long start, long end);
+
+    /**
+     * zset根据分数进行排名返回member
+     *
+     * @param key   关键
+     * @param min 开始
+     * @param max   结束
+     * @return {@link Set<Object>}
+     */
+    Set<Object> reverseRange(String key, long start, long end);
 
     /**
      * 获取zset指定元素分数

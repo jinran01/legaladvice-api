@@ -28,6 +28,8 @@ public interface ArticleMapper extends BaseMapper<Article> {
     ArticleDTO getArticleById(Integer id);
 
     List<ArticlePreviewDTO> listArticlesByCondition(@Param("current") Long current, @Param("size") Long size, @Param("condition") ConditionVO condition);
+
+    ArticleTopDTO articleTopDTOById(@Param("articleId") Integer articleId);
 }
 
 

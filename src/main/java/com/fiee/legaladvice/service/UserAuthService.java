@@ -2,6 +2,7 @@ package com.fiee.legaladvice.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fiee.legaladvice.dto.UserAreaDTO;
 import com.fiee.legaladvice.dto.UserBackDTO;
 import com.fiee.legaladvice.dto.UserOnlineDTO;
 import com.fiee.legaladvice.entity.UserAuth;
@@ -9,6 +10,7 @@ import com.fiee.legaladvice.entity.UserInfo;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,4 +71,6 @@ public interface UserAuthService extends IService<UserAuth> {
      * @return
      */
     boolean updateUserInfo(UserInfo userInfo);
+
+    List<UserAreaDTO> listUserAreas();
 }

@@ -5,10 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
-import com.fiee.legaladvice.dto.EmailDTO;
-import com.fiee.legaladvice.dto.UserBackDTO;
-import com.fiee.legaladvice.dto.UserDetailDTO;
-import com.fiee.legaladvice.dto.UserOnlineDTO;
+import com.fiee.legaladvice.dto.*;
 import com.fiee.legaladvice.entity.UserAuth;
 import com.fiee.legaladvice.entity.UserInfo;
 import com.fiee.legaladvice.entity.UserRole;
@@ -36,10 +33,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fiee.legaladvice.constant.MQPrefixConst.EMAIL_EXCHANGE;
@@ -232,6 +226,22 @@ public class UserAuthServiceImpl extends ServiceImpl<UserAuthMapper, UserAuth>
     @Override
     public boolean updateUserInfo(UserInfo userInfo) {
         return userInfoService.updateById(userInfo);
+    }
+
+    @Override
+    public List<UserAreaDTO> listUserAreas() {
+        List<UserAreaDTO> userAreaDTOList = new ArrayList<>();
+        // 查询游客区域分布
+        Map<String, Object> visitorArea = redisService.hGetAll(VISITOR_AREA);
+        if (Objects.nonNull(visitorArea)) {
+            userAreaDTOList = visitorArea.entrySet().stream()
+                    .map(item -> UserAreaDTO.builder()
+                            .city(item.getKey())
+                            .uv(Long.valueOf(item.getValue().toString()))
+                            .build())
+                    .collect(Collectors.toList());
+        }
+        return userAreaDTOList;
     }
 }
 

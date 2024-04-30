@@ -134,4 +134,14 @@ public class ArticleController {
         articleService.saveArticleLike(articleId);
         return Result.ok();
     }
+
+    /**
+     * 文章访问量top10
+     * @return {@link Result<>}
+     */
+    @ApiOperation(value = "文章访问量top10")
+    @GetMapping("/articles/top")
+    public Result<?> getTopArticles() {
+        return Result.ok(articleService.getTopArticles());
+    }
 }

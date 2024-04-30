@@ -3,6 +3,7 @@ package com.fiee.legaladvice.controller;
 import com.fiee.legaladvice.annotation.AccessLimit;
 import com.fiee.legaladvice.properties.AliPhoneProperties;
 import com.fiee.legaladvice.properties.AliUploadProperties;
+import com.fiee.legaladvice.service.BlogInfoService;
 import com.fiee.legaladvice.service.RedisService;
 import com.fiee.legaladvice.service.UserInfoService;
 import com.fiee.legaladvice.service.impl.SystemServiceImpl;
@@ -36,11 +37,9 @@ import static com.fiee.legaladvice.constant.RedisPrefixConst.USER_CODE_KEY;
 @RequestMapping("/system")
 public class SystemController {
     @Autowired
-    private OssUploadUtils ossUploadUtils;
-    @Autowired
     private AliyunUtils aliyunUtils;
     @Autowired
-    private AliUploadProperties aliUploadProperties;
+    private BlogInfoService blogInfoService;
     @Autowired
     private AliPhoneProperties aliPhoneProperties;
     @Autowired
@@ -100,5 +99,14 @@ public class SystemController {
         new SystemServiceImpl().forgetPass(map);
         return Result.ok();
     }
-
+    /**
+     * 上传访客信息
+     *
+     * @return {@link Result}
+     */
+    @PostMapping("/report")
+    public Result<?> report() {
+        blogInfoService.report();
+        return Result.ok();
+    }
 }

@@ -324,6 +324,32 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     }
 
     /**
+     * 获取文章访问Top10
+     * @return
+     */
+    @Override
+    public List<ArticleTopDTO> getTopArticles() {
+        //对访问量进行排序
+        Set<Object> reverseRange = redisService.reverseRange(ARTICLE_VIEWS_COUNT,0,-1);
+        List<Integer> collect = reverseRange.stream().map(item -> (Integer) item).collect(Collectors.toList());
+        Integer len = 10;
+        if (collect.size() <= 10){
+            len = collect.size();
+        }
+        //获取前十的文章id
+        List<Integer> topArticleIds = collect.subList(0, len);
+        ArticleTopDTO articleTopDTO;
+        List<ArticleTopDTO>  articleTopDTOList = new ArrayList<>();
+        //查询文章信息
+        for (Object articleId : topArticleIds) {
+            articleTopDTO = baseMapper.articleTopDTOById((Integer) articleId);
+            articleTopDTO.setViewCount(redisService.zScore(ARTICLE_VIEWS_COUNT,articleId));
+            articleTopDTOList.add(articleTopDTO);
+        }
+        return articleTopDTOList;
+    }
+
+    /**
      * 物理删除文章
      * @param articleIds 文章ids
      * @return

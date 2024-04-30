@@ -160,6 +160,11 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
+    public Set<Object> reverseRange(String key, long min, long max) {
+        return redisTemplate.opsForZSet().reverseRange(key,min,max);
+    }
+
+    @Override
     public Double zScore(String key, Object value) {
         return redisTemplate.opsForZSet().score(key, value);
     }

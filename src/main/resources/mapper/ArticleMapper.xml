@@ -4,6 +4,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fiee.legaladvice.mapper.ArticleMapper">
 
+    <resultMap id="ArticleTopDTOByIdMap" type="com.fiee.legaladvice.dto.ArticleTopDTO">
+        <id column="id" property="id"/>
+        <result column="article_title" property="articleTitle"/>
+        <result column="create_time" property="createTime"/>
+        <result column="category_name" property="categoryName"/>
+        <collection property="tagNameList" ofType="String">
+            <result column="tag_name"/>
+        </collection>
+    </resultMap>
+
     <resultMap id="ArticleHomeMap" type="com.fiee.legaladvice.dto.ArticleHomeDTO">
         <id column="id" property="id"/>
         <result column="article_cover" property="articleCover"/>
@@ -63,6 +73,24 @@
             <result column="tag_name" property="tagName"/>
         </collection>
     </resultMap>
+
+    <select id="articleTopDTOById" resultMap="ArticleTopDTOByIdMap">
+        select
+            a.id as id,
+            a.article_title,
+            c.category_name,
+            at.tag_id,
+            at.id,
+            t.tag_name,
+            a.create_time
+        from
+            tb_article a
+                join tb_category c on c.id = a.category_id
+                join tb_article_tag at on at.article_id = a.id
+            join tb_tag t on t.id = tag_id
+
+        where a.id=#{articleId}
+    </select>
 
     <select id="homeArticleList" resultMap="ArticleHomeMap">
         SELECT a.id,
