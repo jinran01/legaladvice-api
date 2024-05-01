@@ -138,12 +138,9 @@ public class BlogInfoServiceImpl implements BlogInfoService {
         // 判断是否访问
         if (!redisService.sIsMember(UNIQUE_VISITOR, md5)) {
             // 统计游客地域分布
-            String ipSource = IpUtils.getIpSource(ipAddress);
-            if (StringUtils.isNotBlank(ipSource)) {
-                ipSource = ipSource.substring(0, 2)
-                        .replaceAll(PROVINCE, "")
-                        .replaceAll(CITY, "");
-                redisService.hIncr(VISITOR_AREA, ipSource, 1L);
+            String ipSourceForCity = IpUtils.getIpSourceForCity(ipAddress);
+            if (StringUtils.isNotBlank(ipSourceForCity)) {
+                redisService.hIncr(VISITOR_AREA, ipSourceForCity, 1L);
             } else {
                 redisService.hIncr(VISITOR_AREA, UNKNOWN, 1L);
             }
@@ -242,10 +239,11 @@ public class BlogInfoServiceImpl implements BlogInfoService {
             userWeek.add(item.getIncUser());
         }
         IncreateDataDTO increateDataDTO = IncreateDataDTO.builder()
-                .articleWeek(viewWeek)
+                .articleWeek(articleWeek)
                 .userWeek(userWeek)
                 .viewWeek(viewWeek)
-                .messageWeek(messageWeek).build();
+                .messageWeek(messageWeek)
+                .build();
         return increateDataDTO;
     }
 }

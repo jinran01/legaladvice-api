@@ -23,6 +23,7 @@ import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +74,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     public List<ArticleHomeDTO> getHomeArticles(ConditionVO vo) {
         return baseMapper.homeArticleList(vo,(vo.getCurrent()-1)*vo.getSize());
     }
-
     /**
      * 新增或者更新文章
      *
@@ -96,6 +96,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
         this.saveOrUpdate(article);
         //保存标签
         saveArticleTag(vo, article.getId());
+        if (Objects.isNull(vo.getId())){
+            redisService.incr(INCREATE_ART,1l);
+        }
         return true;
     }
 

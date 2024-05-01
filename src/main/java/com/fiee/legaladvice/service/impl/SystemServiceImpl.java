@@ -1,33 +1,43 @@
 package com.fiee.legaladvice.service.impl;
 
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fiee.legaladvice.dto.EmailDTO;
+import com.fiee.legaladvice.entity.IncreateData;
 import com.fiee.legaladvice.entity.UserAuth;
 import com.fiee.legaladvice.entity.UserInfo;
 import com.fiee.legaladvice.entity.UserRole;
 import com.fiee.legaladvice.exception.BizException;
-import com.fiee.legaladvice.service.RedisService;
-import com.fiee.legaladvice.service.UserAuthService;
-import com.fiee.legaladvice.service.UserInfoService;
-import com.fiee.legaladvice.service.UserRoleService;
+import com.fiee.legaladvice.service.*;
 import com.fiee.legaladvice.utils.UserUtils;
+import javafx.scene.input.DataFormat;
 import org.apache.catalina.User;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.crypto.Data;
+import java.text.DateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import static com.fiee.legaladvice.constant.MQPrefixConst.EMAIL_EXCHANGE;
-import static com.fiee.legaladvice.constant.RedisPrefixConst.CODE_EXPIRE_TIME;
-import static com.fiee.legaladvice.constant.RedisPrefixConst.USER_CODE_KEY;
+import static com.fiee.legaladvice.constant.RedisPrefixConst.*;
 import static com.fiee.legaladvice.enums.EmailEnum.COMMON_CODE;
 import static com.fiee.legaladvice.utils.CommonUtils.checkEmail;
 import static com.fiee.legaladvice.utils.CommonUtils.getRandomCode;
@@ -41,6 +51,7 @@ import static com.fiee.legaladvice.utils.CommonUtils.getRandomCode;
 @Service
 @Component
 public class SystemServiceImpl {
+
 
     @Autowired
     public void setUserAuthService(UserAuthService userAuthService) {
@@ -69,6 +80,7 @@ public class SystemServiceImpl {
     private static UserInfoService userInfoService;
     private static UserRoleService userRoleService;
 
+
     /**
      * 发送邮箱验证码
      * @param username
@@ -93,6 +105,9 @@ public class SystemServiceImpl {
 
     @Transactional
     public void registerUser(Map<String,String> map){
+        if (!map.get("code").equals(redisService.get(USER_CODE_KEY+map.get("username")))){
+            throw new BizException("验证码错误！");
+        }
         LambdaQueryWrapper<UserAuth> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserAuth::getUsername,map.get("username"));
         if (Objects.isNull(userAuthService.getOne(wrapper))){
@@ -111,11 +126,10 @@ public class SystemServiceImpl {
             //添加角色
             UserRole userRole = new UserRole();
             userRole.setUserId(userInfo.getId());
-//            userRole.setRoleId(2);
+            // TODO 创建用户时绑定什么角色
+            userRole.setRoleId(2);
             userRoleService.save(userRole);
-            if (!map.get("code").equals(redisService.get(USER_CODE_KEY+map.get("username")))){
-                throw new BizException("验证码错误！");
-            }
+            redisService.incr(INCREATE_USER,1L);
         }else {
             throw new BizException("该邮箱已被注册");
         }
@@ -155,4 +169,5 @@ public class SystemServiceImpl {
             throw new BizException("该邮箱已被注册");
         }
     }
+
 }

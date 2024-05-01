@@ -98,4 +98,21 @@ public class RedisPrefixConst {
      */
     public static final String UNIQUE_VISITOR = "unique_visitor";
 
+    /**
+     * 访客
+     */
+    public static final String INCREATE_PV = "increate_pv";
+    /**
+     * 访客
+     */
+    public static final String INCREATE_ART = "increate_art";
+    /**
+     * 访客
+     */
+    public static final String INCREATE_MSG = "increate_msg";
+    /**
+     * 访客
+     */
+    public static final String INCREATE_USER = "increate_user";
+
 }

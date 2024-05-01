@@ -61,7 +61,30 @@ public class IpUtils {
         }
         return ipAddress;
     }
-
+    /**
+     * 解析ip地址 太平洋IP地址归属地查询接口
+     *
+     * @param ipAddress ip地址
+     * @return 解析后的ip地址
+     */
+    public static String getIpSourceForCity(String ipAddress) {
+        try {
+            URL url = new URL("http://whois.pconline.com.cn/ipJson.jsp?ip=" + ipAddress + "&json=true");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream(), "gbk"));
+            String line = null;
+            StringBuffer result = new StringBuffer();
+            while ((line = reader.readLine()) != null) {
+                result.append(line);
+            }
+            reader.close();
+            Map map = JSON.parseObject(result.toString(), Map.class);
+            System.out.println(map);
+            return map.get("city").toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
     /**
      * 解析ip地址
      *

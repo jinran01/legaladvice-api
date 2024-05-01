@@ -8,10 +8,12 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * @Author: Fiee
@@ -20,15 +22,13 @@ import java.time.LocalDateTime;
  * @Version: v1.0.0
  **/
 @Data
+@Builder
 @TableName("tb_increate_data")
 public class IncreateData implements Serializable {
 
     /**
      * 时间
      */
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime dateTime;
 
     /**

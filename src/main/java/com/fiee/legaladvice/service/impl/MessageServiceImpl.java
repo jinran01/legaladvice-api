@@ -5,15 +5,20 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fiee.legaladvice.entity.Message;
 import com.fiee.legaladvice.service.MessageService;
 import com.fiee.legaladvice.mapper.MessageMapper;
+import com.fiee.legaladvice.service.RedisService;
 import com.fiee.legaladvice.utils.IpUtils;
 import com.fiee.legaladvice.vo.ConditionVO;
 import com.fiee.legaladvice.vo.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.fiee.legaladvice.constant.RedisPrefixConst.INCREATE_ART;
+import static com.fiee.legaladvice.constant.RedisPrefixConst.INCREATE_MSG;
 
 /**
 * @author Fiee
@@ -23,7 +28,8 @@ import java.util.stream.Collectors;
 @Service
 public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
     implements MessageService{
-
+    @Autowired
+    private RedisService redisService;
     /**
      * 获取留言列表
      * @return
@@ -45,6 +51,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message>
         message.setIpSource(ipSource);
         message.setUpdateTime(LocalDateTime.now());
         //保存
+        redisService.incr(INCREATE_MSG,1l);
         return this.save(message);
     }
 
