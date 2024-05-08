@@ -126,8 +126,7 @@ public class SystemServiceImpl {
             //添加角色
             UserRole userRole = new UserRole();
             userRole.setUserId(userInfo.getId());
-            // TODO 创建用户时绑定什么角色
-            userRole.setRoleId(2);
+            userRole.setRoleId(3);
             userRoleService.save(userRole);
             redisService.incr(INCREATE_USER,1L);
         }else {

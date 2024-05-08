@@ -86,9 +86,9 @@ public class WebsiteConfigServiceImpl extends ServiceImpl<WebsiteConfigMapper, W
         LocalDateTime localDateTime = LocalDateTimeUtil.offset(LocalDateTime.now(ZoneId.of("Asia/Shanghai")), -1, ChronoUnit.DAYS);
 
         Integer lastIncPv = Math.toIntExact(redisService.sSize(UNIQUE_VISITOR));
-        Integer lastIncArt = (Integer) Optional.of(redisService.get(INCREATE_ART)).orElse(0);
-        Integer lastIncUser = (Integer) Optional.of(redisService.get(INCREATE_USER)).orElse(0);
-        Integer lastIncMsg = (Integer) Optional.of(redisService.get(INCREATE_MSG)).orElse(0);
+        Integer lastIncArt = (Integer) redisService.get(INCREATE_ART);
+        Integer lastIncUser = (Integer) redisService.get(INCREATE_USER);
+        Integer lastIncMsg = (Integer) redisService.get(INCREATE_MSG);
 
         IncreateData increateData = IncreateData.builder()
                 .dateTime(localDateTime)
@@ -98,7 +98,7 @@ public class WebsiteConfigServiceImpl extends ServiceImpl<WebsiteConfigMapper, W
                 .incMsg(lastIncMsg)
                 .build();
         UniqueView uniqueView = UniqueView.builder()
-                .viewsCount(Optional.of(lastIncPv).orElse(0))
+                .viewsCount(lastIncPv)
                 .createTime(localDateTime)
                 .build();
 
