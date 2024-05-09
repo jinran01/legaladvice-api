@@ -125,7 +125,7 @@ public class SystemServiceImpl {
             userAuthService.save(userAuth);
             //添加角色
             UserRole userRole = new UserRole();
-            userRole.setUserId(userInfo.getId());
+            userRole.setUserId(userAuth.getId());
             userRole.setRoleId(3);
             userRoleService.save(userRole);
             redisService.incr(INCREATE_USER,1L);

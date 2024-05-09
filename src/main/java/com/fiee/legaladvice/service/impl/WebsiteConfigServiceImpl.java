@@ -86,9 +86,9 @@ public class WebsiteConfigServiceImpl extends ServiceImpl<WebsiteConfigMapper, W
         LocalDateTime localDateTime = LocalDateTimeUtil.offset(LocalDateTime.now(ZoneId.of("Asia/Shanghai")), -1, ChronoUnit.DAYS);
 
         Integer lastIncPv = Math.toIntExact(redisService.sSize(UNIQUE_VISITOR));
-        Integer lastIncArt = (Integer) redisService.get(INCREATE_ART);
-        Integer lastIncUser = (Integer) redisService.get(INCREATE_USER);
-        Integer lastIncMsg = (Integer) redisService.get(INCREATE_MSG);
+        Integer lastIncArt = Objects.isNull(redisService.get(INCREATE_ART)) ? 0 :(Integer) redisService.get(INCREATE_ART);
+        Integer lastIncUser = Objects.isNull(redisService.get(INCREATE_USER)) ? 0 : (Integer) redisService.get(INCREATE_USER);
+        Integer lastIncMsg = Objects.isNull(redisService.get(INCREATE_MSG)) ? 0 :(Integer) redisService.get(INCREATE_MSG);
 
         IncreateData increateData = IncreateData.builder()
                 .dateTime(localDateTime)

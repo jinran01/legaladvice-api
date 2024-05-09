@@ -109,10 +109,4 @@ public class UserAuthController {
         return Result.ok(authentication.getPrincipal());
     }
 
-//    @PostMapping("/users/send")
-//    public Result sendMailCode(@RequestBody String username){
-//        userAuthService.sendCode(username);
-//        return Result.ok("发送成功");
-//    }
-
 }
