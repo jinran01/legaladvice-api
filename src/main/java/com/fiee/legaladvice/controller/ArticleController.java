@@ -134,7 +134,15 @@ public class ArticleController {
         articleService.saveArticleLike(articleId);
         return Result.ok();
     }
-
+    /**
+     * 前台文章搜索
+     * @return {@link Result<>}
+     */
+    @ApiOperation(value = "前台文章搜索")
+    @GetMapping("/articles/search")
+    public Result<?> searchArticles(ConditionVO condition) {
+        return Result.ok(articleService.listArticlesBySearch(condition));
+    }
     /**
      * 文章访问量top10
      * @return {@link Result<>}

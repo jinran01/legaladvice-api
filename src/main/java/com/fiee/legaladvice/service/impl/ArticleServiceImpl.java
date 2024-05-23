@@ -14,6 +14,7 @@ import com.fiee.legaladvice.exception.BizException;
 import com.fiee.legaladvice.mapper.TagMapper;
 import com.fiee.legaladvice.service.*;
 import com.fiee.legaladvice.mapper.ArticleMapper;
+import com.fiee.legaladvice.strategy.context.SearchStrategyContext;
 import com.fiee.legaladvice.utils.BeanCopyUtils;
 import com.fiee.legaladvice.utils.CommonUtils;
 import com.fiee.legaladvice.utils.PageUtils;
@@ -65,7 +66,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     private TagService tagService;
     @Autowired
     private RedisService redisService;
-
+    @Autowired
+    private SearchStrategyContext searchStrategyContext;
     /**
      * 首页文章
      * @return
@@ -275,11 +277,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
     @Override
     public List<String> exportArticles(List<Integer> articleIdList) {
         // 查询文章信息
-//        List<Article> articleList = articleService.selectList(new LambdaQueryWrapper<Article>()
-//                .select(Article::getArticleTitle, Article::getArticleContent)
-//                .in(Article::getId, articleIdList));
-//        // 写入文件并上传
-//        List<String> urlList = new ArrayList<>();
+        List<Article> articleList = baseMapper.selectList(new LambdaQueryWrapper<Article>()
+                .select(Article::getArticleTitle, Article::getArticleContent)
+                .in(Article::getId, articleIdList));
+        // 写入文件并上传
+        List<String> urlList = new ArrayList<>();
 //        for (Article article : articleList) {
 //            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(article.getArticleContent().getBytes())) {
 //                String url = uploadStrategyContext.executeUploadStrategy(article.getArticleTitle() + FileExtEnum.MD.getExtName(), inputStream, FilePathEnum.MD.getPath());
@@ -289,8 +291,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
 //                throw new BizException("导出文章失败");
 //            }
 //        }
-//        return urlList;
-        return null;
+        return urlList;
     }
 
     @Override
@@ -350,6 +351,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article>
             articleTopDTOList.add(articleTopDTO);
         }
         return articleTopDTOList;
+    }
+
+    @Override
+    public List<ArticleSearchDTO> listArticlesBySearch(ConditionVO condition) {
+        return searchStrategyContext.executeSearchStrategy(condition.getKeywords());
     }
 
     /**
